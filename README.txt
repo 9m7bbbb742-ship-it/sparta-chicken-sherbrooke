@@ -1,7 +1,18 @@
-BY SPARTA CHICKEN SHERBROOKE — Prototype V1
+BY SPARTA CHICKEN SHERBROOKE — VERSION 2
 
-CONTENU : index.html, styles.css, app.js et assets/hero.png.
-OUVRIR : décompressez le ZIP et ouvrez index.html dans un navigateur; pour le déploiement, utilisez les fichiers avec votre hébergeur.
+Fichiers :
+- index.html : structure de la page
+- styles.css : design responsive, animations et effets visuels
+- app.js : carrousel Hero, menu filtrable, panier de démonstration et traductions FR/EN/ES
+- assets/ : photos locales utilisées dans le site
 
-IMPORTANT : cette livraison est un prototype front-end moderne, responsive, avec filtres, recherche, panier de démonstration et interface de choix d'horaire. Ce n'est pas encore une boutique en production. Le paiement Stripe, le stock réel, les créneaux réservables, les taxes, le calcul réel des frais de livraison, les courriels/SMS, les comptes, la fidélité, les avis vérifiés, l'IA et le panneau d'administration doivent être connectés côté serveur et testés.
-Les prix et descriptions sont des exemples. Confirmez la zone et le tarif de livraison. N'affichez une certification halal officielle qu'après vérification. Les photos externes nécessitent une connexion internet et doivent être remplacées par des images de vos produits autorisées. Ne placez jamais une clé secrète Stripe dans le code navigateur.
+DÉPLOIEMENT STATIQUE CLOUDFLARE PAGES
+Framework preset : None
+Build command : laisser vide
+Build output directory : /
+Root directory : / (racine)
+
+IMPORTANT — VERSION VISUELLE / PROTOTYPE
+Les produits, descriptions et prix sont des exemples à confirmer par le restaurant. Le panier fonctionne localement dans le navigateur mais ne passe pas de commande réelle. Aucun paiement Stripe, calcul d'éligibilité livraison, disponibilité en direct, inventaire serveur, compte client, avis vérifiés ou panneau d'administration n'est connecté. Ne pas accepter de paiements réels sur cette version. Avant mise en service, connecter un backend sécurisé, configurer les vrais prix/produits et vérifier les mentions de certification et les services proposés.
+
+Les images de démonstration sont stockées localement dans assets/ afin de limiter les dépendances externes.
