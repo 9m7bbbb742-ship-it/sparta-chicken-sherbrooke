@@ -1,0 +1,20 @@
+BY SPARTA CHICKEN SHERBROOKE — PAGE D'ACCUEIL SÉPARÉE
+
+FICHIERS
+- accueil.html : nouvelle page d'accueil indépendante
+- accueil.css : style responsive cinéma noir/rouge/or
+- accueil.js : menu mobile, animations au scroll et lecture vidéo
+- assets/ : vidéo et photos utilisées par cette page
+
+INSTALLATION SANS TOUCHER AU SITE ACTUEL
+1. Téléversez accueil.html, accueil.css, accueil.js et le dossier assets/ à la RACINE du dépôt sparta-chicken-sherbrooke.
+2. Ne remplacez PAS index.html, styles.css, app.js, ni aucun autre fichier existant.
+3. Committez les nouveaux fichiers. Cloudflare devrait publier la mise à jour si le dépôt est connecté.
+4. Visitez https://VOTRE-DOMAINE/accueil.html pour tester cette page.
+5. Tous les liens Commander / Site complet ouvrent index.html, afin de garder le parcours actuel intact.
+
+IMPORTANT
+- Cette page n'est pas branchée aux systèmes de paiement, commandes, fidélité ou réservation : elle renvoie vers le site existant pour ne pas casser ces fonctionnalités.
+- La vidéo incluse est celle fournie dans la conversation et a été convertie en MP4 muet pour l'autoplay web. Elle ne peut être garantie identique à une animation de référence différente sans le fichier vidéo original exact.
+- Le logo affiché est un emblème typographique provisoire; remplacez-le par votre vrai fichier logo si vous l'avez, en gardant le fichier réel dans assets et en modifiant le bloc .brand dans accueil.html.
+- Pour en faire la page par défaut, il faudra ensuite intégrer cette présentation à index.html ou configurer une redirection après vérification. Ne le faites pas avant validation afin de conserver le site existant.
