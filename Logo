@@ -1,0 +1,18 @@
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.site-logo {
+  display: block;
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 640px) {
+  .site-logo {
+    width: 82px;
+  }
+}
