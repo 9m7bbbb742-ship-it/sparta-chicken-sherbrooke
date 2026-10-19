@@ -1,0 +1,40 @@
+SPARTA CHICKEN — LOGO POUR LE SITE
+
+1) Téléversez le dossier `assets` dans le dépôt GitHub `sparta-chicken-sherbrooke`,
+   au même niveau que `index.html`, `styles.css` et `app.js`.
+
+2) Dans `index.html`, remplacez le logo actuel par ceci, à l'endroit du logo dans l'en-tête :
+
+<a class="brand-logo" href="/" aria-label="By Sparta Chicken Sherbrooke - Accueil">
+  <img src="assets/sparta-chicken-logo.jpg"
+       alt="Logo By Sparta Chicken Sherbrooke"
+       class="site-logo">
+</a>
+
+3) Ajoutez ces règles à la fin de `styles.css` :
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  text-decoration: none;
+}
+.site-logo {
+  display: block;
+  width: clamp(76px, 11vw, 150px);
+  height: auto;
+  object-fit: contain;
+  max-height: 100px;
+}
+@media (max-width: 640px) {
+  .site-logo {
+    width: 82px;
+    max-height: 70px;
+  }
+}
+
+IMPORTANT :
+- Le chemin `assets/sparta-chicken-logo.jpg` doit correspondre exactement au nom du fichier.
+- Si l'en-tête possède déjà un élément logo, remplacez cet élément plutôt que d'ajouter un deuxième logo.
+- Ceci ajoute le logo visuel seulement. Ça ne configure pas le paiement, les commandes ou les autres services.
+- Travaillez uniquement dans `sparta-chicken-sherbrooke`; ne modifiez pas `ma-boutique`.
