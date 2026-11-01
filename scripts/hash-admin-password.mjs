@@ -20,11 +20,11 @@ const finish = () => {
 
 stdin.on("data", (chunk) => {
   for (const ch of chunk) {
-    if (ch === "\\u0003") {
+    if (ch === "\u0003") {
       finish();
       process.exit(130);
     }
-    if (ch === "\\r" || ch === "\\n") {
+    if (ch === "\r" || ch === "\n") {
       finish();
       if (password.length < 14) {
         console.error("Choisissez au moins 14 caractères.");
@@ -36,7 +36,7 @@ stdin.on("data", (chunk) => {
       console.log("ADMIN_PASSWORD_HASH=" + salt.toString("hex") + ":" + hash.toString("hex"));
       process.exit(0);
     }
-    if (ch === "\\u007f" || ch === "\\b") {
+    if (ch === "\u007f" || ch === "\b") {
       password = password.slice(0, -1);
       continue;
     }
