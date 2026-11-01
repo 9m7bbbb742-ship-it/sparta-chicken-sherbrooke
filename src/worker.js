@@ -1,6 +1,6 @@
 const COOKIE = "__Host-sparta_admin";
 const SESSION_SECONDS = 8 * 60 * 60;
-const ITERATIONS = 310000;
+const ITERATIONS = 100000;
 
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...headers } });
