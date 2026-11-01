@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Générateur sécurisé — Sparta Chicken</title>
+<style>body{font:16px system-ui;max-width:560px;margin:40px auto;padding:0 18px;color:#222}input,button{font:inherit;padding:12px;width:100%;box-sizing:border-box;margin:8px 0}button{background:#171717;color:white;border:0;border-radius:8px}#out{overflow-wrap:anywhere;background:#eee;padding:12px;display:none}</style>
+<h2>Créer le code administrateur</h2>
+<p>Le mot de passe est traité uniquement dans ton navigateur. Il n'est envoyé à aucun serveur.</p>
+<label for="pw">Ton mot de passe (14 caractères minimum)</label>
+<input id="pw" type="password" autocomplete="new-password">
+<button id="go">Générer le code sécurisé</button>
+<p id="msg" role="status"></p><div id="out"></div><button id="copy" style="display:none">Copier le code</button>
+<script>
+const enc=new TextEncoder();
+document.getElementById('go').onclick=async()=>{
+ const p=document.getElementById('pw').value, msg=document.getElementById('msg'), out=document.getElementById('out'), copy=document.getElementById('copy');
+ out.style.display='none';copy.style.display='none';
+ if(p.length<14){msg.textContent='Choisis au moins 14 caractères.';return}
+ msg.textContent='Génération…';
+ try{
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const key=await crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveBits']);
+  const bits=new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},key,256));
+  const hex=a=>Array.from(a,x=>x.toString(16).padStart(2,'0')).join('');
+  out.textContent=hex(salt)+':'+hex(bits);out.style.display='block';copy.style.display='block';
+  msg.textContent='Code prêt. Copie-le dans ADMIN_PASSWORD_HASH.';
+  document.getElementById('pw').value='';
+ }catch(e){msg.textContent='Erreur : navigateur non compatible. Essaie un navigateur récent.'}
+};
+document.getElementById('copy').onclick=async()=>{await navigator.clipboard.writeText(document.getElementById('out').textContent);document.getElementById('msg').textContent='Code copié.'};
+</script></html>
