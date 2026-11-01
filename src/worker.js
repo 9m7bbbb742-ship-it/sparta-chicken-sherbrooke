@@ -48,11 +48,18 @@ export default {
       if (request.method === "OPTIONS") return new Response(null,{status:204,headers:{"Allow":"GET,POST,PATCH,DELETE,OPTIONS"}});
       if (url.pathname === "/api/health" && request.method === "GET") return json({ok:true, service:"sparta-api", database:!!env.DB});
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
-        if (!env.ADMIN_PASSWORD_HASH || !env.SESSION_SECRET) return json({error:"Configuration administrateur incomplète."},503);
+        if (!env.ADMIN_PASSWORD_HASH || !env.SESSION_SECRET || !env.ADMIN_USERNAME) return json({error:"Configuration administrateur incomplète."},503);
         const data = await body(request);
         if (!data || typeof data.username !== "string" || typeof data.password !== "string" || data.username !== env.ADMIN_USERNAME || data.password.length < 1 || data.password.length > 200) return json({error:"Identifiants invalides."},401);
-        if (!await passwordMatches(data.password,env.ADMIN_PASSWORD_HASH)) return json({error:"Identifiants invalides."},401);
-        return json({ok:true,username:env.ADMIN_USERNAME},200,{"set-cookie":cookie(await makeSession(env.SESSION_SECRET))});
+        try {
+          const matches = await passwordMatches(data.password,env.ADMIN_PASSWORD_HASH);
+          if (!matches) return json({error:"Identifiants invalides."},401);
+          const session = await makeSession(env.SESSION_SECRET);
+          return json({ok:true,username:env.ADMIN_USERNAME},200,{"set-cookie":cookie(session)});
+        } catch (error) {
+          console.error("Échec technique de la connexion administrateur", error);
+          return json({error:"Erreur technique pendant la connexion. Vérifie les journaux du Worker Cloudflare."},500);
+        }
       }
       if (url.pathname === "/api/admin/logout" && request.method === "POST") return json({ok:true},200,{"set-cookie":clearCookie});
       if (!env.SESSION_SECRET || !await validSession(request,env.SESSION_SECRET)) return json({error:"Authentification requise."},401);
