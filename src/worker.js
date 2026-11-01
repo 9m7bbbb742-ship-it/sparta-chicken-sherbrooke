@@ -76,6 +76,67 @@ export default {
         const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,party_size,reservation_at,status,created_at FROM reservations ORDER BY reservation_at DESC LIMIT 100").all();
         return json({reservations:results});
       }
+
+      if (url.pathname === "/api/admin/inventory" && request.method === "GET") {
+        const {results=[]}=await env.DB.prepare("SELECT * FROM inventory ORDER BY name").all();
+        return json({items:results});
+      }
+      if (url.pathname === "/api/admin/inventory" && request.method === "POST") {
+        const d=await body(request);
+        if (!d || typeof d.name!=="string" || !d.name.trim() || !Number.isFinite(d.quantity) || d.quantity<0 || !Number.isFinite(d.unit_cost_cents) || d.unit_cost_cents<0) return json({error:"Données de stock invalides."},400);
+        const r=await env.DB.prepare("INSERT INTO inventory(name,quantity,unit,low_stock_threshold,unit_cost_cents) VALUES(?,?,?,?,?)").bind(d.name.trim(),d.quantity,String(d.unit||"unité"),Math.max(0,Number(d.low_stock_threshold)||0),Math.round(d.unit_cost_cents)).run();
+        return json({ok:true,id:r.meta.last_row_id},201);
+      }
+      if (url.pathname.startsWith("/api/admin/inventory/") && request.method === "PATCH") {
+        const id=Number(url.pathname.split("/").pop()), d=await body(request);
+        if (!Number.isInteger(id) || !d || !Number.isFinite(d.quantity) || d.quantity<0) return json({error:"Quantité invalide."},400);
+        await env.DB.prepare("UPDATE inventory SET quantity=?,updated_at=datetime('now') WHERE id=?").bind(d.quantity,id).run();
+        return json({ok:true});
+      }
+      if (url.pathname === "/api/admin/deliveries" && request.method === "GET") {
+        const {results=[]}=await env.DB.prepare("SELECT * FROM deliveries ORDER BY created_at DESC LIMIT 200").all();
+        const totals=await env.DB.prepare("SELECT COALESCE(SUM(delivery_fee_cents),0) fees,COALESCE(SUM(driver_cost_cents),0) costs,COALESCE(SUM(delivery_fee_cents-driver_cost_cents),0) net FROM deliveries WHERE status='delivered'").first();
+        return json({deliveries:results,totals});
+      }
+      if (url.pathname === "/api/admin/deliveries" && request.method === "POST") {
+        const d=await body(request);
+        if (!d || typeof d.customer_name!=="string" || !d.customer_name.trim() || typeof d.address!=="string" || !d.address.trim()) return json({error:"Nom et adresse requis."},400);
+        const r=await env.DB.prepare("INSERT INTO deliveries(customer_name,address,driver_name,delivery_fee_cents,driver_cost_cents,distance_km) VALUES(?,?,?,?,?,?)").bind(d.customer_name.trim(),d.address.trim(),String(d.driver_name||""),Math.max(0,Math.round(Number(d.delivery_fee_cents)||0)),Math.max(0,Math.round(Number(d.driver_cost_cents)||0)),Math.max(0,Number(d.distance_km)||0)).run();
+        return json({ok:true,id:r.meta.last_row_id},201);
+      }
+      if (url.pathname.startsWith("/api/admin/deliveries/") && request.method === "PATCH") {
+        const id=Number(url.pathname.split("/").pop()),d=await body(request);
+        if (!Number.isInteger(id) || !d || !["pending","assigned","picked_up","delivered","cancelled"].includes(d.status)) return json({error:"Statut invalide."},400);
+        await env.DB.prepare("UPDATE deliveries SET status=?,driver_name=COALESCE(?,driver_name),driver_cost_cents=COALESCE(?,driver_cost_cents),delivered_at=CASE WHEN ?='delivered' THEN datetime('now') ELSE delivered_at END WHERE id=?").bind(d.status,d.driver_name??null,d.driver_cost_cents==null?null:Math.max(0,Math.round(d.driver_cost_cents)),d.status,id).run();
+        return json({ok:true});
+      }
+      if (url.pathname === "/api/admin/expenses" && request.method === "GET") {
+        const {results=[]}=await env.DB.prepare("SELECT * FROM expenses ORDER BY expense_date DESC,id DESC LIMIT 300").all();
+        return json({expenses:results});
+      }
+      if (url.pathname === "/api/admin/expenses" && request.method === "POST") {
+        const d=await body(request);
+        if (!d || typeof d.label!=="string" || !d.label.trim() || !Number.isInteger(d.amount_cents) || d.amount_cents<0) return json({error:"Dépense invalide."},400);
+        const r=await env.DB.prepare("INSERT INTO expenses(label,category,amount_cents,expense_date,notes) VALUES(?,?,?,?,?)").bind(d.label.trim(),String(d.category||"Autre"),d.amount_cents,String(d.expense_date||new Date().toISOString().slice(0,10)),String(d.notes||"")).run();
+        return json({ok:true,id:r.meta.last_row_id},201);
+      }
+      if (url.pathname === "/api/admin/settings" && request.method === "GET") {
+        const {results=[]}=await env.DB.prepare("SELECT setting_key,setting_value FROM restaurant_settings ORDER BY setting_key").all();
+        return json({settings:Object.fromEntries(results.map(x=>[x.setting_key,x.setting_value]))});
+      }
+      if (url.pathname === "/api/admin/settings" && request.method === "POST") {
+        const d=await body(request);
+        if (!d || typeof d!=="object" || Array.isArray(d)) return json({error:"Paramètres invalides."},400);
+        const batch=Object.entries(d).filter(([k,v])=>/^[a-z0-9_.-]{1,80}$/i.test(k)&&["string","number","boolean"].includes(typeof v)).map(([k,v])=>env.DB.prepare("INSERT INTO restaurant_settings(setting_key,setting_value) VALUES(?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value").bind(k,String(v)));
+        if(batch.length) await env.DB.batch(batch);
+        return json({ok:true,saved:batch.length});
+      }
+      if (url.pathname === "/api/admin/profit" && request.method === "GET") {
+        const revenue=await env.DB.prepare("SELECT COALESCE(SUM(total_cents),0) value FROM orders WHERE status!='cancelled' AND date(created_at)=date('now')").first();
+        const expenses=await env.DB.prepare("SELECT COALESCE(SUM(amount_cents),0) value FROM expenses WHERE expense_date=date('now')").first();
+        const delivery=await env.DB.prepare("SELECT COALESCE(SUM(delivery_fee_cents-driver_cost_cents),0) value FROM deliveries WHERE status='delivered' AND date(delivered_at)=date('now')").first();
+        return json({revenue_cents:revenue.value,expenses_cents:expenses.value,delivery_net_cents:delivery.value,profit_before_product_cost_cents:revenue.value-expenses.value+delivery.value,notice:"Estimation hors coût matière tant que les coûts des recettes ne sont pas renseignés."});
+      }
       return json({error:"Route introuvable."},404);
     }
     return env.ASSETS.fetch(request);
