@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#111111">
+  <title>Administration | By Sparta Chicken</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">SC</span><span>BY SPARTA CHICKEN<small>ESPACE ADMINISTRATEUR</small></span></a>
+      <p class="nav-label">GESTION</p>
+      <nav aria-label="Navigation administration">
+        <a class="nav-link active" href="#overview" data-view="overview">▦ <span>Vue d'ensemble</span></a>
+        <a class="nav-link" href="#orders" data-view="orders">▤ <span>Commandes</span></a>
+        <a class="nav-link" href="#menu" data-view="menu">☷ <span>Menu et produits</span></a>
+        <a class="nav-link" href="#reservations" data-view="reservations">▣ <span>Réservations</span></a>
+        <a class="nav-link" href="#customers" data-view="customers">♙ <span>Clients</span></a>
+        <a class="nav-link" href="#loyalty" data-view="loyalty">✧ <span>Sparta Rewards</span></a>
+        <a class="nav-link" href="#promotions" data-view="promotions">◇ <span>Promotions</span></a>
+      </nav>
+      <p class="nav-label">CONFIGURATION</p>
+      <nav><a class="nav-link" href="#settings" data-view="settings">⚙ <span>Paramètres</span></a></nav>
+      <div class="sidebar-foot"><span class="status-dot"></span> Interface en préparation</div>
+    </aside>
+    <section class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">☰</button>
+        <div><span class="eyebrow">BY SPARTA CHICKEN · SHERBROOKE</span><h1 id="pageTitle">Vue d'ensemble</h1></div>
+        <div class="admin-chip"><span class="avatar">A</span><span>Administrateur<small>Accès propriétaire prévu</small></span></div>
+      </header>
+      <div class="notice"><strong>Configuration requise</strong><span>Cette interface est une première version visuelle. Les données, les commandes et la connexion sécurisée ne sont pas encore branchées au serveur.</span></div>
+      <section class="content" id="overview" data-panel="overview">
+        <div class="welcome"><div><p class="eyebrow">TABLEAU DE BORD</p><h2>Bienvenue dans ton espace de gestion.</h2><p>Centralise les opérations de ton restaurant depuis un seul endroit.</p></div><span class="welcome-icon">✦</span></div>
+        <div class="section-heading"><div><h2>Activité du restaurant</h2><p>Les indicateurs apparaîtront lorsque la base de données sera connectée.</p></div><span class="pill">Données non connectées</span></div>
+        <div class="metrics">
+          <article class="metric"><span>Commandes aujourd'hui</span><strong>—</strong><small>En attente de connexion</small></article>
+          <article class="metric"><span>Ventes aujourd'hui</span><strong>—</strong><small>En attente de connexion</small></article>
+          <article class="metric"><span>Réservations</span><strong>—</strong><small>En attente de connexion</small></article>
+          <article class="metric"><span>Clients</span><strong>—</strong><small>En attente de connexion</small></article>
+        </div>
+        <div class="lower-grid"><article class="panel"><div class="panel-head"><h3>Dernières commandes</h3><span>À connecter</span></div><div class="empty"><span>▤</span><strong>Aucune donnée disponible</strong><p>Les commandes s'afficheront ici une fois le système connecté.</p></div></article><article class="panel"><div class="panel-head"><h3>Raccourcis</h3></div><div class="shortcuts"><button data-view="menu">＋ Ajouter un produit</button><button data-view="orders">▤ Voir les commandes</button><button data-view="promotions">◇ Créer une promotion</button><button data-view="settings">⚙ Paramètres du restaurant</button></div></article></div>
+      </section>
+      <section class="content placeholder" id="otherPanel" hidden><div class="welcome"><div><p class="eyebrow">ESPACE ADMINISTRATEUR</p><h2 id="otherTitle">Gestion</h2><p id="otherDescription">Ce module sera activé lors de la connexion du backend sécurisé.</p></div><span class="welcome-icon">✦</span></div><div class="panel empty-state"><span>◷</span><strong>Module en préparation</strong><p>Cette section est prévue dans l'administration. Aucune donnée fictive ni action non connectée n'est présentée comme fonctionnelle.</p></div></section>
+      <footer>By Sparta Chicken · Administration privée · Version initiale</footer>
+    </section>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>
