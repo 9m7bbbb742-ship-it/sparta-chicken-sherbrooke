@@ -6,7 +6,18 @@
   "assets": {
     "directory": "./",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*"],
+    "exclude": [
+      "/.git/**",
+      "/.github/**",
+      "/node_modules/**",
+      "/src/**",
+      "/scripts/**",
+      "/schema.sql",
+      "/wrangler.jsonc",
+      "/DEPLOIEMENT-SECURISE.md",
+      "/admin/README.md"
+    ]
   },
   "d1_databases": [
     {
