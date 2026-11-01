@@ -50,10 +50,11 @@ export default {
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
         if (!env.ADMIN_PASSWORD_HASH || !env.SESSION_SECRET || !env.ADMIN_USERNAME) return json({error:"Configuration administrateur incomplète."},503);
         const data = await body(request);
-        if (!data || typeof data.username !== "string" || typeof data.password !== "string" || data.username !== env.ADMIN_USERNAME || data.password.length < 1 || data.password.length > 200) return json({error:"Identifiants invalides."},401);
+        if (!data || typeof data.username !== "string" || typeof data.password !== "string" || data.password.length < 1 || data.password.length > 200) { console.warn("Connexion admin refusée: format des données invalide"); return json({error:"Identifiants invalides."},401); }
+        if (data.username !== env.ADMIN_USERNAME) { console.warn("Connexion admin refusée: ADMIN_USERNAME ne correspond pas"); return json({error:"Identifiants invalides."},401); }
         try {
           const matches = await passwordMatches(data.password,env.ADMIN_PASSWORD_HASH);
-          if (!matches) return json({error:"Identifiants invalides."},401);
+          if (!matches) { console.warn("Connexion admin refusée: ADMIN_PASSWORD_HASH ne correspond pas au mot de passe saisi"); return json({error:"Identifiants invalides."},401); }
           const session = await makeSession(env.SESSION_SECRET);
           return json({ok:true,username:env.ADMIN_USERNAME},200,{"set-cookie":cookie(session)});
         } catch (error) {
