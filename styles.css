@@ -64,3 +64,53 @@ button:focus-visible,a:focus-visible{outline:2px solid #f0d8a5;outline-offset:4p
 
 /* Correctif immédiat : le contenu reste visible même si JavaScript ne se charge pas */
 .reveal{opacity:1!important;transform:none!important}
+
+
+/* Nouvelle palette uniquement : or doux, dégradé rose léger et bordeaux.
+   Les dimensions, la disposition, les images et toutes les animations restent inchangées. */
+:root{--bg:#eadbbd;--red:#70213f;--gold:#9b6b3d;--cream:#4a1b30;--muted:#765766;--wine:#641b38;--blush:#dba9b6;--ink:#4a1b30}
+body{background:linear-gradient(125deg,#f0e4c9 0%,#eadbbd 48%,#f0dce0 100%);color:#4a1b30}
+.embers{background:radial-gradient(ellipse at 8% 12%,#e8b9c655,transparent 34%),radial-gradient(ellipse at 88% 42%,#d7a0b333,transparent 36%),linear-gradient(125deg,#f0e4c9,#eadbbd 55%,#f0dce0)}
+.embers:after{background-image:radial-gradient(circle,#a96f7955 1px,transparent 2px),radial-gradient(circle,#b28a4c55 1px,transparent 2px)}
+.header{background:#eadbbdf0;border-bottom-color:#9b6b3d77}
+.brand{color:#641b38}.crest{border-color:#9b6b3d;color:#641b38}
+.nav a{color:#5b2940}.nav a:hover,.nav .active{color:#9b6b3d}
+.lang{border-color:#9b6b3d;color:#641b38}
+.hero{border-bottom-color:#9b6b3d66}
+.hero:before{background:linear-gradient(90deg,#eadbbdeF 0%,#eadbbdc9 31%,#eadbbd22 75%),linear-gradient(0deg,#eadbbd,transparent 23%)}
+.hero-copy{border-color:#b28a4c;background:linear-gradient(135deg,#f3e7d2ed,#f0dce0e8);box-shadow:0 20px 80px #5b294022}
+.eyebrow,.link,.tag,em,.scroll{color:#8b5b35}
+.hero p,.lead{color:#684858}
+.red{background:linear-gradient(110deg,#7a2345,#55152f);border-color:#a95c79;color:#fff8f1}
+.outline{border-color:#8b5b35;color:#641b38;background:#f4e8d3bb}
+.seal{border-color:#9b6b3d;background:#eadbbde8;color:#641b38;box-shadow:0 0 35px #dba9b633}
+.strip{background:linear-gradient(100deg,#e5d2ae,#f0dce0);border-bottom-color:#9b6b3d66}
+.strip b{color:#4a1b30}.strip small,.page-hero p{color:#765766}
+.cat{border-color:#9b6b3d88}.cat:hover{border-color:#7a2345}
+.cat span{color:#f0d6a1}.cat h3{color:#fff7ed}.cat b{color:#f5dfbd}
+.banner{border-color:#9b6b3d;background:linear-gradient(115deg,#f0e2c5,#efd5dc 70%,#e8c5ce)}
+.banner .crown{color:#8b5b35}.banner p{color:#684858}
+.card{border-color:#b28a4c88;background:linear-gradient(140deg,#f3e7d2,#efdde0)}
+.card:hover{border-color:#7a2345}.card h3{color:#641b38}.card p{color:#765766}
+.bottom{color:#641b38}.bottom button{border-color:#9b6b3d;color:#7a2345}
+.quote{background:radial-gradient(ellipse at center,#dba9b655,transparent 65%);color:#641b38}
+.footer{background:linear-gradient(110deg,#e2cfaa,#ecd6dc);border-top-color:#9b6b3d66}
+.footer>div{color:#684858}.footer b{color:#641b38}.copyright{color:#806b70;border-color:#641b3822}
+.page-hero{background:radial-gradient(ellipse at 75%,#dba9b666,transparent 48%);border-bottom-color:#9b6b3d66}
+.filters button{border-color:#9b6b3d77;background:#f1e4cc;color:#5b2940}
+.filters button.active{background:#7a2345;color:#fff7ed}
+.search{background:#f6ead5;border-color:#9b6b3d;color:#4a1b30}
+.formbox{border-color:#b28a4c;background:linear-gradient(140deg,#f3e7d2,#efdde0)}
+label{color:#5b2940}
+input,textarea,select{color:#4a1b30;background:#f7ecd9;border-color:#ad8a67}
+input::placeholder,textarea::placeholder{color:#987e83}
+.message,.result{color:#641b38}.fine{color:#806b70}
+.membership{border-color:#9b6b3d;background:radial-gradient(circle at 80%,#dba9b666,transparent 40%),linear-gradient(130deg,#f1e3c7,#e9cbd4);color:#641b38}
+.points{border-color:#9b6b3d77}.points strong{color:#7a2345}
+.notice{border-color:#9b6b3d;background:#dba9b622;color:#684858}
+.mini{border-color:#b28a4c;background:linear-gradient(140deg,#f3e7d2,#efdde0)}.mini h3{color:#641b38}
+.nav a[aria-current="page"]{color:#7a2345;border-color:#9b6b3d}
+input:focus,textarea:focus,select:focus,.search:focus{outline-color:#9b6b3d;border-color:#9b6b3d}
+button:focus-visible,a:focus-visible{outline-color:#7a2345}
+.footer a:hover{color:#7a2345}
+@media(max-width:700px){.nav{background:#eadbbdf7}.hero:before{background:linear-gradient(0deg,#eadbbd 0%,#eadbbdd9 27%,#eadbbd35 75%)}.nav a[aria-current="page"]{border-left-color:#9b6b3d}}
