@@ -85,7 +85,7 @@ export default {
           const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,total_cents,status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
           return json({orders:results});
         }
-        if(s.role==="employee"&&/^\\/api\\/staff\\/orders\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+        if(s.role==="employee"&&/^\/api\/staff\/orders\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
           const id=Number(url.pathname.split("/").pop()),d=await body(request);
           if(!d||!["confirmed","preparing","ready","completed","cancelled"].includes(d.status))return json({error:"Statut invalide."},400);
           await env.DB.prepare("UPDATE orders SET status=? WHERE id=?").bind(d.status,id).run();return json({ok:true});
@@ -96,7 +96,7 @@ export default {
         if(s.role==="driver"&&url.pathname==="/api/staff/deliveries"&&request.method==="GET"){
           const {results=[]}=await env.DB.prepare("SELECT id,customer_name,address,status,distance_km,created_at FROM deliveries WHERE driver_name=? AND status IN ('assigned','picked_up') ORDER BY created_at").bind(s.username).all();return json({deliveries:results});
         }
-        if(s.role==="driver"&&/^\\/api\\/staff\\/deliveries\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+        if(s.role==="driver"&&/^\/api\/staff\/deliveries\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
           const id=Number(url.pathname.split("/").pop()),d=await body(request);
           if(!d||!["picked_up","delivered"].includes(d.status))return json({error:"Statut invalide."},400);
           const r=await env.DB.prepare("UPDATE deliveries SET status=?,delivered_at=CASE WHEN ?='delivered' THEN datetime('now') ELSE delivered_at END WHERE id=? AND driver_name=? AND status IN ('assigned','picked_up')").bind(d.status,d.status,id,s.username).run();
@@ -136,7 +136,7 @@ export default {
         const hash=[...bits].map(x=>x.toString(16).padStart(2,"0")).join("");
         try{const q=await env.DB.prepare("INSERT INTO staff_accounts(username,password_hash,role) VALUES(?,?,?)").bind(d.username.trim(),saltHex+":"+hash,d.role).run();return json({ok:true,id:q.meta.last_row_id},201)}catch{return json({error:"Ce nom d’utilisateur existe déjà."},409)}
       }
-      if(/^\\/api\\/admin\\/staff\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+      if(/^\/api\/admin\/staff\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
         const id=Number(url.pathname.split("/").pop()),d=await body(request);
         if(!d||typeof d.active!=="boolean")return json({error:"État invalide."},400);
         await env.DB.prepare("UPDATE staff_accounts SET active=? WHERE id=?").bind(d.active?1:0,id).run();return json({ok:true});
