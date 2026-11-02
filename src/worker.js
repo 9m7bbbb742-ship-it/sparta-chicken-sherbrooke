@@ -40,11 +40,69 @@ async function validSession(request, secret) {
 const cookie = value => `${COOKIE}=${value}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_SECONDS}`;
 const clearCookie = `${COOKIE}=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`;
 async function body(request) { try { return await request.json(); } catch { return null; } }
+async function makeStaffSession(secret, account) {
+  const payload=b64u(new TextEncoder().encode(JSON.stringify({exp:Math.floor(Date.now()/1000)+SESSION_SECONDS,uid:account.id,username:account.username,role:account.role})));
+  return payload+"."+b64u(await hmac(secret,payload));
+}
+async function readStaffSession(request,secret) {
+  const raw=request.headers.get("Cookie")||"";
+  const token=raw.split(";").map(x=>x.trim()).find(x=>x.startsWith("__Host-sparta_staff="))?.slice("__Host-sparta_staff=".length);
+  if(!token)return null;
+  const [payload,sig]=token.split(".");
+  try {
+    const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-256"},false,["verify"]);
+    if(!await crypto.subtle.verify("HMAC",key,fromB64u(sig),new TextEncoder().encode(payload)))return null;
+    const s=JSON.parse(new TextDecoder().decode(fromB64u(payload)));
+    return s.exp>Math.floor(Date.now()/1000)&&["employee","driver"].includes(s.role)?s:null;
+  } catch{return null;}
+}
+const staffCookie=value=>`__Host-sparta_staff=${value}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_SECONDS}`;
+const clearStaffCookie="__Host-sparta_staff=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0";
+
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
+      if(url.pathname==="/api/staff/login"&&request.method==="POST"){
+        if(!env.DB||!env.SESSION_SECRET)return json({error:"Service indisponible."},503);
+        const d=await body(request);
+        if(!d||typeof d.username!=="string"||typeof d.password!=="string"||d.password.length>200)return json({error:"Identifiants invalides."},401);
+        const account=await env.DB.prepare("SELECT id,username,password_hash,role,active FROM staff_accounts WHERE username=?").bind(d.username.trim()).first();
+        if(!account||account.active!==1||!await passwordMatches(d.password,account.password_hash))return json({error:"Identifiants invalides."},401);
+        await env.DB.prepare("UPDATE staff_accounts SET last_login_at=datetime('now') WHERE id=?").bind(account.id).run();
+        return json({ok:true,role:account.role,username:account.username},200,{"set-cookie":staffCookie(await makeStaffSession(env.SESSION_SECRET,account))});
+      }
+      if(url.pathname==="/api/staff/logout"&&request.method==="POST")return json({ok:true},200,{"set-cookie":clearStaffCookie});
+      if(url.pathname.startsWith("/api/staff/")){
+        if(!env.SESSION_SECRET||!env.DB)return json({error:"Service indisponible."},503);
+        const s=await readStaffSession(request,env.SESSION_SECRET);
+        if(!s)return json({error:"Authentification requise."},401);
+        if(url.pathname==="/api/staff/session"&&request.method==="GET")return json({ok:true,username:s.username,role:s.role});
+        if(s.role==="employee"&&url.pathname==="/api/staff/orders"&&request.method==="GET"){
+          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,total_cents,status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
+          return json({orders:results});
+        }
+        if(s.role==="employee"&&/^\\/api\\/staff\\/orders\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+          const id=Number(url.pathname.split("/").pop()),d=await body(request);
+          if(!d||!["confirmed","preparing","ready","completed","cancelled"].includes(d.status))return json({error:"Statut invalide."},400);
+          await env.DB.prepare("UPDATE orders SET status=? WHERE id=?").bind(d.status,id).run();return json({ok:true});
+        }
+        if(s.role==="employee"&&url.pathname==="/api/staff/reservations"&&request.method==="GET"){
+          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,party_size,reservation_at,notes,status FROM reservations WHERE status!='completed' AND status!='cancelled' ORDER BY reservation_at LIMIT 100").all();return json({reservations:results});
+        }
+        if(s.role==="driver"&&url.pathname==="/api/staff/deliveries"&&request.method==="GET"){
+          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,address,status,distance_km,created_at FROM deliveries WHERE driver_name=? AND status IN ('assigned','picked_up') ORDER BY created_at").bind(s.username).all();return json({deliveries:results});
+        }
+        if(s.role==="driver"&&/^\\/api\\/staff\\/deliveries\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+          const id=Number(url.pathname.split("/").pop()),d=await body(request);
+          if(!d||!["picked_up","delivered"].includes(d.status))return json({error:"Statut invalide."},400);
+          const r=await env.DB.prepare("UPDATE deliveries SET status=?,delivered_at=CASE WHEN ?='delivered' THEN datetime('now') ELSE delivered_at END WHERE id=? AND driver_name=? AND status IN ('assigned','picked_up')").bind(d.status,d.status,id,s.username).run();
+          if(!r.meta.changes)return json({error:"Livraison introuvable ou non assignée à ce compte."},404);return json({ok:true});
+        }
+        return json({error:"Accès interdit."},403);
+      }
+
       if (request.method === "OPTIONS") return new Response(null,{status:204,headers:{"Allow":"GET,POST,PATCH,DELETE,OPTIONS"}});
       if (url.pathname === "/api/health" && request.method === "GET") return json({ok:true, service:"sparta-api", database:!!env.DB});
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
@@ -64,6 +122,23 @@ export default {
       }
       if (url.pathname === "/api/admin/logout" && request.method === "POST") return json({ok:true},200,{"set-cookie":clearCookie});
       if (!env.SESSION_SECRET || !await validSession(request,env.SESSION_SECRET)) return json({error:"Authentification requise."},401);
+      if(url.pathname==="/api/admin/staff"&&request.method==="GET"){
+        const {results=[]}=await env.DB.prepare("SELECT id,username,role,active,created_at,last_login_at FROM staff_accounts ORDER BY role,username").all();return json({accounts:results});
+      }
+      if(url.pathname==="/api/admin/staff"&&request.method==="POST"){
+        const d=await body(request);
+        if(!d||typeof d.username!=="string"||!/^[a-zA-Z0-9_.-]{3,40}$/.test(d.username)||typeof d.password!=="string"||d.password.length<8||d.password.length>200||!["employee","driver"].includes(d.role))return json({error:"Nom, rôle et mot de passe (8 caractères minimum) requis."},400);
+        const salt=crypto.getRandomValues(new Uint8Array(16)),saltHex=[...salt].map(x=>x.toString(16).padStart(2,"0")).join("");
+        const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(d.password),"PBKDF2",false,["deriveBits"]);
+        const bits=new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:ITERATIONS,hash:"SHA-256"},material,256));
+        const hash=[...bits].map(x=>x.toString(16).padStart(2,"0")).join("");
+        try{const q=await env.DB.prepare("INSERT INTO staff_accounts(username,password_hash,role) VALUES(?,?,?)").bind(d.username.trim(),saltHex+":"+hash,d.role).run();return json({ok:true,id:q.meta.last_row_id},201)}catch{return json({error:"Ce nom d’utilisateur existe déjà."},409)}
+      }
+      if(/^\\/api\\/admin\\/staff\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+        const id=Number(url.pathname.split("/").pop()),d=await body(request);
+        if(!d||typeof d.active!=="boolean")return json({error:"État invalide."},400);
+        await env.DB.prepare("UPDATE staff_accounts SET active=? WHERE id=?").bind(d.active?1:0,id).run();return json({ok:true});
+      }
       if (!env.DB) return json({error:"Base de données non configurée."},503);
       if (url.pathname === "/api/admin/session" && request.method === "GET") return json({ok:true,username:env.ADMIN_USERNAME});
       if (url.pathname === "/api/admin/products" && request.method === "GET") {
