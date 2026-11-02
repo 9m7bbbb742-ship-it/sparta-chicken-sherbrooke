@@ -78,6 +78,8 @@ export default {
         if(!env.SESSION_SECRET||!env.DB)return json({error:"Service indisponible."},503);
         const s=await readStaffSession(request,env.SESSION_SECRET);
         if(!s)return json({error:"Authentification requise."},401);
+        const activeAccount=await env.DB.prepare("SELECT id FROM staff_accounts WHERE id=? AND active=1 AND role=?").bind(s.uid,s.role).first();
+        if(!activeAccount)return json({error:"Compte désactivé. Reconnecte-toi avec un compte actif."},401,{"set-cookie":clearStaffCookie});
         if(url.pathname==="/api/staff/session"&&request.method==="GET")return json({ok:true,username:s.username,role:s.role});
         if(s.role==="employee"&&url.pathname==="/api/staff/orders"&&request.method==="GET"){
           const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,total_cents,status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
