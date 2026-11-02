@@ -219,3 +219,47 @@ input:focus,textarea:focus,select:focus,.search:focus{outline-color:#ec5b91;bord
 button:focus-visible,a:focus-visible{outline-color:#ec5b91}
 .footer a:hover{color:#f4d477}
 @media(max-width:700px){.nav{background:#edcf7cf7}.hero:before{background:linear-gradient(0deg,#dfb84f 0%,#dfb84fe8 27%,#dfb84f35 75%)}.nav a[aria-current="page"]{border-left:3px solid #79143f}}
+
+
+/* Barre d’en-tête : panneau burgundy à gauche, séparation or, panneau rose à droite */
+.header{
+  position:sticky;
+  background:linear-gradient(90deg,#570d2b 0%,#74143d 29.4%,#d6a638 29.7%,#f0cf70 30%,#d94c82 30.35%,#a91d55 100%);
+  border-bottom:2px solid #e3bd58;
+  box-shadow:0 5px 22px #4a0b294d;
+}
+.header:before{
+  content:"";
+  position:absolute;
+  left:29.8%;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:linear-gradient(180deg,#fff0b0,#c58a20 48%,#fff0b0);
+  box-shadow:0 0 12px #f8d77a,0 0 24px #f3c85b99;
+  pointer-events:none;
+}
+.header .brand{
+  position:relative;
+  z-index:1;
+  color:#f7d879;
+  text-shadow:0 1px 2px #2d0717,0 0 12px #f1c85a55;
+}
+.header .brand b{color:#ffe39a}
+.header .brand small{color:#f4d98e}
+.header .crest{
+  border-color:#e7bd55;
+  color:#f8d77a;
+  background:linear-gradient(145deg,#78153c,#43091f);
+  box-shadow:0 0 0 3px #e7bd5522,0 0 16px #f0c85a66;
+}
+.header .nav,.header .lang,.header .toggle{position:relative;z-index:1}
+.header .nav a{color:#fff0e8;text-shadow:0 1px 3px #580d2b}
+.header .nav a:hover,.header .nav .active,.header .nav a[aria-current="page"]{color:#ffe18b}
+.header .lang{border-color:#f4d16a;color:#fff0d0;background:#6b103788}
+@media(max-width:700px){
+ .header{background:linear-gradient(90deg,#570d2b 0%,#74143d 29.4%,#d6a638 29.7%,#f0cf70 30%,#d94c82 30.35%,#a91d55 100%)}
+ .header:before{left:29.8%}
+ .header .nav{background:linear-gradient(110deg,#570d2b,#a91d55)}
+ .header .nav a{color:#fff0e8}
+}
