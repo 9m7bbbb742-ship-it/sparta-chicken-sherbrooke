@@ -265,16 +265,12 @@ button:focus-visible,a:focus-visible{outline-color:#ec5b91}
 }
 
 
-/* Finition de la barre supérieure : rose clair et séparation dorée flottante */
-.header{overflow:hidden;background:linear-gradient(90deg,#570d2b 0%,#74143d 25%,#f2b4c8 39%,#f7c4d2 58%,#ed9ab8 100%);border-bottom:2px solid #d6a638}
-.header:before{content:"";position:absolute;z-index:0;left:23%;top:-34%;width:230px;height:168%;background:radial-gradient(ellipse at 24% 50%,#fff0a8 0 17%,#e8bd52 34%,transparent 58%),radial-gradient(ellipse at 48% 42%,#f9df8b 0 22%,#c88e24 45%,transparent 66%),radial-gradient(ellipse at 70% 57%,#f4d477 0 20%,#d3a13a 43%,transparent 67%);filter:drop-shadow(0 0 9px #f7d979) drop-shadow(0 0 19px #d9a93c99);animation:goldCloudFloat 6s ease-in-out infinite alternate;pointer-events:none}
-@keyframes goldCloudFloat{0%{transform:translate3d(-7px,-3px,0) scale(.96)}50%{transform:translate3d(8px,4px,0) scale(1.04)}100%{transform:translate3d(-2px,-2px,0) scale(1)}}
-.header .brand{color:#f7d879;text-shadow:0 1px 2px #2d0717,0 0 12px #f1c85a55}
-.header .brand b,.header .brand small{color:#ffe39a}
-.header .crest{border-color:#e7bd55;color:#f8d77a;background:linear-gradient(145deg,#78153c,#43091f);box-shadow:0 0 0 3px #e7bd5522,0 0 16px #f0c85a66}
-.header .nav,.header .lang,.header .toggle{position:relative;z-index:2}
-.header .nav a{color:#5c1838;text-shadow:0 1px 0 #fff5}
-.header .nav a:hover,.header .nav .active,.header .nav a[aria-current="page"]{color:#8a1747}
-.header .lang{border-color:#8a1747;color:#64102f;background:#f8dce6aa}
-@media(max-width:700px){.header{background:linear-gradient(90deg,#570d2b 0%,#74143d 25%,#f2b4c8 39%,#f7c4d2 58%,#ed9ab8 100%)}.header:before{left:19%;width:155px}.header .nav{background:linear-gradient(110deg,#74143d,#f2b4c8)}.header .nav a{color:#fff0e8}}
-@media(prefers-reduced-motion:reduce){.header:before{animation:none}}
+
+/* Finition de la barre supérieure : bordeaux des deux côtés, nuage doré central */
+.header{background:linear-gradient(90deg,#570d2b 0%,#74143d 25%,#74143d 76%,#570d2b 100%);border-bottom:2px solid #d6a638}
+.header:before{left:23%;width:230px}
+.header .nav a{color:#f8e7ec;text-shadow:0 1px 3px #390719}
+.header .nav a:hover,.header .nav .active,.header .nav a[aria-current="page"]{color:#ffe18b}
+.header .lang{border-color:#f0cf70;color:#ffe6ef;background:#570d2b88}
+@media(max-width:700px){.header{background:linear-gradient(90deg,#570d2b 0%,#74143d 25%,#74143d 76%,#570d2b 100%)}.header:before{left:19%;width:155px}.header .nav{background:linear-gradient(110deg,#570d2b,#74143d)}.header .nav a{color:#fff0e8}}
+
