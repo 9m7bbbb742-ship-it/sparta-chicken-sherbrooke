@@ -45,3 +45,18 @@ input,textarea,select{color:#fff5ed;background:#160b10;border-color:#806040}
 .notice{border-color:#d9b978;background:#d9b9780a}
 .mini{border-color:#d9b97855;background:#241019}
 @media(max-width:700px){.nav{background:#241019f7}.hero:before{background:linear-gradient(0deg,#160b10 0%,#160b10d9 27%,#160b1035 75%)}}
+
+
+/* Lisibilité et navigation — sans modifier la structure des pages */
+body{line-height:1.6}
+.nav a{padding:9px 0;transition:color .2s ease}
+.nav a[aria-current="page"]{color:#f0d8a5;border-bottom:1px solid #d9b978}
+h1,h2,h3{letter-spacing:.015em}
+.section>.heading{margin-bottom:32px}
+.page-hero p,.lead{max-width:680px}
+.fine{display:block;line-height:1.65}
+label{line-height:1.5}
+input:focus,textarea:focus,select:focus,.search:focus{outline:2px solid #d9b978;outline-offset:2px;border-color:#d9b978}
+button:focus-visible,a:focus-visible{outline:2px solid #f0d8a5;outline-offset:4px}
+.footer a:hover{color:#f0d8a5}
+@media(max-width:700px){.nav a[aria-current="page"]{border-bottom:0;border-left:2px solid #d9b978;padding-left:12px}.hero-copy p{font-size:13px;line-height:1.7}.strip b{line-height:1.35}.section>.heading{margin-bottom:22px}}
