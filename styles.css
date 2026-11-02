@@ -60,3 +60,7 @@ input:focus,textarea:focus,select:focus,.search:focus{outline:2px solid #d9b978;
 button:focus-visible,a:focus-visible{outline:2px solid #f0d8a5;outline-offset:4px}
 .footer a:hover{color:#f0d8a5}
 @media(max-width:700px){.nav a[aria-current="page"]{border-bottom:0;border-left:2px solid #d9b978;padding-left:12px}.hero-copy p{font-size:13px;line-height:1.7}.strip b{line-height:1.35}.section>.heading{margin-bottom:22px}}
+
+
+/* Correctif immédiat : le contenu reste visible même si JavaScript ne se charge pas */
+.reveal{opacity:1!important;transform:none!important}
