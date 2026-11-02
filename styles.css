@@ -167,3 +167,55 @@ input:focus,textarea:focus,select:focus,.search:focus{outline-color:#ed4f87;bord
 button:focus-visible,a:focus-visible{outline-color:#ed4f87}
 .footer a:hover{color:#fff0c7}
 @media(max-width:700px){.nav{background:#c18c2cf7}.hero:before{background:linear-gradient(0deg,#b98222 0%,#b98222e8 27%,#b9822235 75%)}.nav a[aria-current="page"]{border-left:3px solid #650d35}}
+
+
+/* Or véritable et contrastes bordeaux / burgundy / rose — palette seulement */
+:root{--bg:#d9ad45;--red:#79143f;--gold:#d5a32d;--cream:#421126;--muted:#70475a;--wine:#64102f;--blush:#ec5b91;--ink:#421126}
+body{background:linear-gradient(135deg,#f4d987 0%,#dfb84f 42%,#c9952e 100%);color:#421126}
+.embers{background:radial-gradient(ellipse at 10% 12%,#f3c6d655,transparent 34%),radial-gradient(ellipse at 88% 42%,#9d174b44,transparent 36%),linear-gradient(135deg,#f4d987,#dfb84f 48%,#c9952e)}
+.embers:after{background-image:radial-gradient(circle,#ed5b91aa 1px,transparent 2px),radial-gradient(circle,#fff0b3 1px,transparent 2px)}
+.header{background:linear-gradient(100deg,#e9c45fef,#f0d88fef);border-bottom:2px solid #8c5a12}
+.brand{color:#64102f}.crest{border-color:#8c5a12;color:#64102f}
+.nav a{color:#57152f}.nav a:hover,.nav .active{color:#8c5a12}
+.lang{border-color:#8c5a12;color:#64102f}
+.hero{border-bottom:2px solid #9a6718}
+.hero:before{background:linear-gradient(90deg,#e6bf58f2 0%,#e6bf58d9 31%,#e6bf5822 75%),linear-gradient(0deg,#dfb84f,transparent 23%)}
+.hero-copy{border:2px solid #9b6a19;background:linear-gradient(130deg,#f6df9aef,#edb6c9ed);box-shadow:0 20px 80px #64102f44}
+.eyebrow,.link,.tag,.scroll{color:#80500d}
+em{color:#79143f}
+.hero p,.lead{color:#54223a}
+.red{background:linear-gradient(110deg,#a51c55,#64102f);border:1px solid #ef82aa;color:#fff8f3;box-shadow:0 7px 22px #64102f55}
+.outline{border:2px solid #79143f;color:#64102f;background:#f6df9acc}
+.seal{border:3px double #79143f;background:linear-gradient(145deg,#f4d477,#e99bb8);color:#64102f;box-shadow:0 0 35px #ec5b9166}
+.strip{background:linear-gradient(100deg,#d5a638,#edb1c5);border-bottom:2px solid #8c5a12}
+.strip b{color:#421126}.strip small,.page-hero p{color:#70475a}
+.cat{border:2px solid #d5a32d}.cat:hover{border-color:#ec5b91;box-shadow:0 10px 30px #64102f55}
+.cat:after{background:linear-gradient(0deg,#4b1029 0%,#4b1029b8 35%,transparent)}
+.cat span{color:#ffd2df}.cat h3{color:#fff8f3}.cat b{color:#ffe6aa}
+.banner{border:2px solid #9b6a19;background:linear-gradient(115deg,#e7bf56,#ed9db9 72%,#d94c7b)}
+.banner .crown{color:#64102f}.banner p{color:#54223a}
+.card{border:1px solid #a86d20;background:linear-gradient(140deg,#f4d987,#edb4c7)}
+.card:hover{border:2px solid #64102f;box-shadow:0 10px 28px #64102f44}
+.card h3{color:#64102f}.card p{color:#70475a}
+.bottom{color:#64102f}.bottom button{border:2px solid #79143f;color:#79143f}
+.quote{background:radial-gradient(ellipse at center,#ec5b9188,transparent 65%);color:#64102f}
+.footer{background:linear-gradient(110deg,#7a173e,#4b1029 58%,#a92b5b);border-top:2px solid #e0b54b}
+.footer>div{color:#f5dce5}.footer b{color:#f4d477}.copyright{color:#e7c7d2;border-color:#f5dce544}
+.page-hero{background:radial-gradient(ellipse at 75%,#ec5b9188,transparent 48%);border-bottom:2px solid #9b6a19}
+.filters button{border:1px solid #79143f;background:#f3d47c;color:#4b1029}
+.filters button.active{background:linear-gradient(110deg,#8c1747,#4b1029);color:#fff8f3;border-color:#f08ab0}
+.search{background:#f8e6b4;border:1px solid #79143f;color:#421126}
+.formbox{border:2px solid #9b2450;background:linear-gradient(140deg,#f3d47c,#edb4c7)}
+label{color:#4b1029}
+input,textarea,select{color:#421126;background:#f8e8bd;border:1px solid #9b2450}
+input::placeholder,textarea::placeholder{color:#936d7d}
+.message,.result{color:#64102f}.fine{color:#70475a}
+.membership{border:2px solid #79143f;background:radial-gradient(circle at 80%,#ec5b9188,transparent 40%),linear-gradient(130deg,#e8c35d,#edb0c4);color:#64102f}
+.points{border:1px solid #79143f}.points strong{color:#8c1747}
+.notice{border-left:4px solid #8c1747;background:#ec5b9133;color:#54223a}
+.mini{border:1px solid #9b2450;background:linear-gradient(140deg,#f3d47c,#edb4c7)}.mini h3{color:#64102f}
+.nav a[aria-current="page"]{color:#79143f;border-color:#9b6a19}
+input:focus,textarea:focus,select:focus,.search:focus{outline-color:#ec5b91;border-color:#79143f}
+button:focus-visible,a:focus-visible{outline-color:#ec5b91}
+.footer a:hover{color:#f4d477}
+@media(max-width:700px){.nav{background:#edcf7cf7}.hero:before{background:linear-gradient(0deg,#dfb84f 0%,#dfb84fe8 27%,#dfb84f35 75%)}.nav a[aria-current="page"]{border-left:3px solid #79143f}}
