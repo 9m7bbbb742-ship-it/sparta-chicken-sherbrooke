@@ -57,6 +57,58 @@ body{background:radial-gradient(ellipse at 90% 0%,#f4dce0 0,transparent 32%),lin
  .login{padding:27px 22px}
 }
 
+
+/* REFONTE OR — portail livreur */
+:root{--wine:#481426;--wine2:#2b0b18;--gold:#d6a83f;--pink:#d6a83f;--cream:#fff8e8;--ink:#321724;--muted:#79636a;--line:#dfc27e;--shadow:0 12px 28px #39200e18}
+html{background:#e9c66f}
+body{background:linear-gradient(135deg,#f4df9d 0%,#dfb84f 48%,#f6e5b4 100%);background-attachment:fixed;color:var(--ink)}
+.sidebar{background:linear-gradient(180deg,#260b17 0%,#481426 58%,#64243a 100%);border-right:2px solid #d6a83f}
+.topbar{background:#f8e8bd;border-bottom:1px solid #c99d3b;box-shadow:0 5px 20px #38200d12}
+.topbar h1{color:#481426}
+.eyebrow,.brand{color:#92651b}
+.userchip{background:#f1d88f;border:1px solid #c99d3b;color:#481426}
+.content{max-width:1440px;padding:30px}
+.welcome{background:linear-gradient(115deg,#e9c66f,#f5dfa0 60%,#d9ad4d);color:#401626;border:2px solid #b8892c;box-shadow:0 16px 34px #68471825;border-radius:18px;padding:28px 30px}
+.welcome .eyebrow{color:#704817}.welcome p{color:#5d3c2d}.welcome h2{color:#3e1425}
+.welcome:after{color:#4814260b}
+.metric,.panel,.delivery{background:#fffaf0;border:1px solid #d9b65f;box-shadow:0 8px 22px #50341516;border-radius:15px}
+.metric:after{background:#f4e4b9}
+.metric strong{color:#481426}
+.panel h2,.panel h3,.delivery h3{color:#481426}
+.detail{background:#f8edcf;border:1px solid #e5cf91}
+.detail b{color:#481426}
+.primary{background:#481426;border:1px solid #d6a83f;color:#fff7e6;box-shadow:none}
+.gold{background:linear-gradient(135deg,#f8e5a9,#d9ad4d);border:1px solid #ae812a;color:#3b1724}
+.ghost{background:#f4e4b9;border:1px solid #d8b65f;color:#481426}
+.danger{background:#f4e0d8;border:1px solid #d6a38a;color:#762b2b}
+.actions a{background:#f4e6bf;border:1px solid #ddc078;color:#481426}
+.actions a:hover{background:#ecd79e}
+.pill{background:#f3e1ad;color:#694816}
+.notice{background:#f8edcf;border:1px solid #d6b45c;color:#67471e}
+.toolbar input,.toolbar select,.routeinput,.login input{background:#fffaf0;border-color:#d7bd7a;color:#321724}
+.login-wrap{background:linear-gradient(135deg,#3a1022,#7b4a20 55%,#e2bb60)}
+.login{background:#fff8e8;border:2px solid #d6a83f}
+.login h1{color:#481426}
+.login .brand{color:#92651b}
+.login input:focus,.toolbar input:focus{border-color:#b8892c;box-shadow:0 0 0 3px #d6a83f30}
+.nav button.active{background:#ffffff1b;border-color:#d6a83f;box-shadow:inset 4px 0 #e7c46b;color:#ffe7a6}
+@media(max-width:980px){.sidebar{width:72px}.main{margin-left:72px}.content{padding:20px}}
+@media(max-width:700px){
+ .sidebar{inset:auto 0 0;width:100%;height:72px;padding:6px 7px calc(6px + env(safe-area-inset-bottom));border:0;border-top:2px solid #d6a83f;box-shadow:0 -7px 22px #32172430}
+ .brandblock,.navlabel,.sidefoot{display:none}
+ .nav{height:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;align-items:center}
+ .nav button{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:3px 1px;border-radius:9px;font-size:17px}
+ .nav button span{display:block;font-size:8px;line-height:1.1;white-space:nowrap}
+ .nav button.active{box-shadow:inset 0 3px #e7c46b;background:#ffffff18}
+ .main{margin-left:0;padding-bottom:84px}
+ .topbar{height:66px;padding:0 12px}.topbar h1{font-size:17px}.eyebrow{font-size:8px}.userchip{font-size:10px;padding:5px 7px}
+ .content{padding:12px 10px 22px}.welcome{display:flex;gap:10px;align-items:center;padding:17px 15px;min-height:0;border-radius:14px}.welcome h2{font-size:22px}.welcome p{font-size:12px;line-height:1.45}.welcome .gold{flex:0 0 auto;padding:10px;font-size:11px}
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}.metric{padding:12px;border-radius:12px}.metric span{font-size:10px}.metric strong{font-size:22px;margin:6px 0 2px}.metric small{font-size:9px}
+ .grid2{grid-template-columns:1fr;gap:10px}.panel{padding:15px}.panel h3{font-size:16px}
+ .delivery{padding:13px;margin:9px 0}.delivery h3{font-size:17px}.details{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.detail{padding:9px}.detail small{font-size:9px}.detail b{font-size:11px}
+ .actions{gap:6px}.actions a,.actions button{flex:1 1 calc(50% - 6px);font-size:11px;padding:9px 6px}
+ .toolbar input,.toolbar select{max-width:none;flex:1 1 100%}
+}
 </style></head><body>
 <section id="loginScreen" class="login-wrap"><form id="loginForm" class="login"><div class="brand">BY SPARTA CHICKEN · SHERBROOKE</div><h1>Portail livreur</h1><p class="muted">Connecte-toi pour accéder à tes tournées et à tes livraisons.</p><label>Nom d’utilisateur<input name="username" autocomplete="username" required></label><label>Mot de passe<input name="password" type="password" autocomplete="current-password" required></label><button class="primary">Se connecter</button><p id="loginError" class="error"></p></form></section>
 <div id="app" class="shell hidden"><aside class="sidebar"><div class="brandblock"><b>SPARTA CHICKEN</b><small>PORTAIL LIVREUR</small></div><div class="navlabel">ESPACE DE TRAVAIL</div><nav class="nav"><button class="active" data-page="dashboard">▦ <span>Tableau de bord</span></button><button data-page="active">🚚 <span>Mes livraisons</span></button><button data-page="history">◷ <span>Historique</span></button><button data-page="earnings">💰 <span>Mes revenus</span></button><button data-page="tools">🧭 <span>Outils de route</span></button><button data-page="profile">♙ <span>Mon espace</span></button></nav><div class="sidefoot">Accès personnel sécurisé<br>By Sparta Chicken · Sherbrooke</div></aside>
