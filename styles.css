@@ -328,11 +328,13 @@ button:focus-visible,a:focus-visible{outline-color:#965763}
 .footer a:hover{color:#e8c65e}
 @media(max-width:700px){.nav{background:#411a21f7}.hero:before{background:linear-gradient(0deg,#f8edcf 0%,#f8edcfdd 27%,#f8edcf35 75%)}.nav a[aria-current="page"]{border-left-color:#d9b24f}}
 
-/* Badge doré : signature gourmande avec éclat magique */
-.seal{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;background:radial-gradient(circle at 30% 20%,#fff5cf 0%,#f2d77e 25%,#d9b24f 58%,#9a6a1c 100%);color:#411a21;border:2px solid #fff0ae;box-shadow:0 0 0 4px #d9b24f55,0 0 24px #e8c65e88,inset 0 0 16px #fff4c766;animation:sealAura 3.8s ease-in-out infinite}
-.seal .seal-magic{font-weight:900;letter-spacing:.12em;font-size:1.12em;color:#641c34;text-shadow:0 0 5px #fff5c8,0 0 14px #fff0a0;animation:sealSpark 2.6s ease-in-out infinite}
+
+/* Badge du logo : retour au sceau halal original, bio animé dans la boule */
+.seal{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;background:radial-gradient(circle at 30% 20%,#fff5cf 0%,#f2d77e 25%,#d9b24f 58%,#9a6a1c 100%);color:#641c34;border:2px solid #fff0ae;box-shadow:0 0 0 4px #d9b24f55,0 0 24px #e8c65e88,inset 0 0 16px #fff4c766;animation:sealAura 3.8s ease-in-out infinite}
 .seal b{font-size:.72em;letter-spacing:.07em;color:#411a21}
 .seal small{font-size:.58em;color:#641c34}
+.seal:after{content:"Le goût qui rassemble";display:block;max-width:90%;font-size:.48em;line-height:1.2;font-weight:700;letter-spacing:.025em;color:#641c34;text-shadow:0 0 6px #fff5c8;animation:sealBio 3.2s ease-in-out infinite}
 @keyframes sealAura{0%,100%{filter:brightness(1);box-shadow:0 0 0 4px #d9b24f44,0 0 18px #e8c65e66,inset 0 0 12px #fff4c744}50%{filter:brightness(1.12);box-shadow:0 0 0 5px #f4d77a66,0 0 32px #ffeaa8cc,inset 0 0 20px #fff9d988}}
-@keyframes sealSpark{0%,100%{transform:scale(1);letter-spacing:.12em}50%{transform:scale(1.06);letter-spacing:.16em}}
-@media(prefers-reduced-motion:reduce){.seal,.seal .seal-magic{animation:none}}
+@keyframes sealBio{0%,100%{opacity:.72;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){.seal,.seal:after{animation:none}}
+
