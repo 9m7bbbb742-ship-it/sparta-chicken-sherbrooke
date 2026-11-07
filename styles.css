@@ -376,3 +376,28 @@ button:focus-visible,a:focus-visible{outline-color:#965763}
 @media(max-width:900px){.hero-burger{right:0;width:42vw;opacity:.72;transform:translateY(-42%) scale(.82)}}
 @media(max-width:700px){.hero-burger{width:100%;height:260px;top:70px;right:0;opacity:.28;transform:scale(.64);transform-origin:top center}.hero-burger .burger-caption{display:none}.hero-copy{animation-duration:.65s}}
 @media(prefers-reduced-motion:reduce){.hero-copy,.hero-burger,.burger-stack,.burger-orbit,.burger-spark,.burger-layer{animation:none!important}.burger-layer{opacity:1;translate:0 0;rotate:0}}
+
+/* Trio demi-poulet — fiche produit et choix du combo */
+.demi-trio-section{padding-top:28px}
+.demi-trio-card{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);overflow:hidden;border:1px solid #9b6b3d;border-radius:22px;background:linear-gradient(130deg,#f6ebd8,#efd9df);box-shadow:0 18px 50px #4a1b3020}
+.demi-trio-photo{min-height:100%;position:relative;overflow:hidden;background:#2a151c}
+.demi-trio-photo img{width:100%;height:100%;min-height:650px;object-fit:cover;display:block;transition:transform .7s}
+.demi-trio-card:hover .demi-trio-photo img{transform:scale(1.035)}
+.demi-trio-content{padding:clamp(22px,4vw,44px);color:#4a1b30}
+.demi-trio-content h2{font-size:clamp(38px,5vw,60px);line-height:1;margin:12px 0}
+.demi-trio-description{font-size:14px;line-height:1.8;color:#684858}
+.demi-trio-price{display:flex;align-items:baseline;gap:12px;margin:18px 0 24px;padding:13px 17px;border-radius:12px;background:#641b38;color:#fff5ed}
+.demi-trio-price strong{font:900 38px 'Barlow Condensed';color:#f3d49a}
+.demi-trio-price span{font-size:11px}
+.demi-trio-options fieldset{border:1px solid #b28a4c;border-radius:12px;padding:14px;margin:13px 0}
+.demi-trio-options legend{padding:0 7px;color:#641b38;font-size:12px;font-weight:700}
+.demi-trio-options fieldset>label{display:inline-flex;align-items:center;gap:7px;margin:5px 12px 5px 0;color:#5b2940}
+.demi-trio-options input[type=radio],.demi-trio-options input[type=checkbox]{width:17px;height:17px;margin:0;accent-color:#70213f}
+.demi-trio-options input[type=text]{background:#fffaf0;color:#4a1b30}
+.demi-sauces{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
+.demi-sauces label{display:flex;align-items:center;gap:8px;margin:6px 0;color:#5b2940}
+.demi-sauce-count{display:block;margin-top:9px;color:#765766;font-size:11px}
+.demi-trio-options .btn{width:100%;margin-top:8px}
+.demi-trio-status{min-height:36px;font-size:11px;line-height:1.6;color:#684858}
+@media(max-width:800px){.demi-trio-card{grid-template-columns:1fr}.demi-trio-photo img{min-height:300px;height:340px}.demi-trio-content{padding:22px}.demi-sauces{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.demi-trio-photo img{transition:none}}
