@@ -334,9 +334,5 @@ button:focus-visible,a:focus-visible{outline-color:#965763}
 
 
 
-/* Nuage doré d’origine restauré, avec le slogan intégré sans toucher au logo */
-.header:before{content:"";position:absolute;left:47%;top:-42%;width:110px;height:184%;background:radial-gradient(ellipse,#f7df8b 0%,#d9b24f 42%,#b88627 58%,transparent 73%);filter:drop-shadow(0 0 9px #d9b24f99);animation:goldCloudFloat 6s ease-in-out infinite alternate;z-index:1;pointer-events:none}
-.header:after{content:"✦ LE GOÛT QUI RASSEMBLE ✦";position:absolute;z-index:2;left:47%;top:50%;width:110px;transform:translateY(-50%);text-align:center;color:#4b1029;font-size:8px;line-height:1.15;font-weight:900;letter-spacing:.035em;text-shadow:0 1px 0 #fff3b4,0 0 8px #fff2b0;pointer-events:none;animation:cloudBioShimmer 3s ease-in-out infinite}
-@keyframes cloudBioShimmer{0%,100%{opacity:.78;filter:brightness(1);transform:translateY(-50%) scale(.96)}50%{opacity:1;filter:brightness(1.22);transform:translateY(-50%) scale(1.04)}}
-@media(max-width:700px){.header:before{left:48%;width:110px}.header:after{left:48%;width:110px;font-size:7px}}
-@media(prefers-reduced-motion:reduce){.header:before,.header:after{animation:none}}
+/* Suppression complète du nuage doré et de son texte animé dans l’en-tête */
+.header:before,.header:after{content:none!important;display:none!important;animation:none!important;filter:none!important}
