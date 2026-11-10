@@ -40,6 +40,12 @@ async function validSession(request, secret) {
 const cookie = value => `${COOKIE}=${value}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_SECONDS}`;
 const clearCookie = `${COOKIE}=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`;
 async function body(request) { try { return await request.json(); } catch { return null; } }
+async function ensureProductImageColumn(env) {
+  const {results=[]}=await env.DB.prepare("PRAGMA table_info(products)").all();
+  if(!results.some(column=>column.name==="image_url")) {
+    await env.DB.prepare("ALTER TABLE products ADD COLUMN image_url TEXT NOT NULL DEFAULT ''").run();
+  }
+}
 async function makeStaffSession(secret, account) {
   const payload=b64u(new TextEncoder().encode(JSON.stringify({exp:Math.floor(Date.now()/1000)+SESSION_SECONDS,uid:account.id,username:account.username,role:account.role})));
   return payload+"."+b64u(await hmac(secret,payload));
@@ -66,6 +72,7 @@ export default {
     if (url.pathname.startsWith("/api/")) {
       if (url.pathname === "/api/menu/products" && request.method === "GET") {
         if (!env.DB) return json({error:"Base de données non configurée."},503);
+        await ensureProductImageColumn(env);
         const {results=[]}=await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url FROM products WHERE available=1 ORDER BY category,name").all();
         return json({products:results});
       }
@@ -149,16 +156,19 @@ export default {
       if (!env.DB) return json({error:"Base de données non configurée."},503);
       if (url.pathname === "/api/admin/session" && request.method === "GET") return json({ok:true,username:env.ADMIN_USERNAME});
       if (url.pathname === "/api/admin/products" && request.method === "GET") {
+        await ensureProductImageColumn(env);
         const {results=[]} = await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url,available,created_at FROM products ORDER BY category,name").all();
         return json({products:results});
       }
       if (url.pathname === "/api/admin/products" && request.method === "POST") {
+        await ensureProductImageColumn(env);
         const d=await body(request);
         if (!d || typeof d.name!=="string" || !d.name.trim() || !Number.isInteger(d.price_cents) || d.price_cents<0 || d.price_cents>10000000) return json({error:"Nom et prix en cents valides requis."},400);
         const result=await env.DB.prepare("INSERT INTO products(name,description,price_cents,category,image_url,available) VALUES(?,?,?,?,?,?)").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),String(d.image_url||""),d.available===false?0:1).run();
         return json({ok:true,id:result.meta.last_row_id},201);
       }
       if (/^\/api\/admin\/products\/\d+$/.test(url.pathname) && request.method === "PATCH") {
+        await ensureProductImageColumn(env);
         const id=Number(url.pathname.split("/").pop()),d=await body(request);
         if(!Number.isInteger(id)||!d||typeof d.name!=="string"||!d.name.trim()||!Number.isInteger(d.price_cents)||d.price_cents<0||d.price_cents>10000000)return json({error:"Nom et prix en cents valides requis."},400);
         await env.DB.prepare("UPDATE products SET name=?,description=?,price_cents=?,category=?,image_url=?,available=? WHERE id=?").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),String(d.image_url||""),d.available===false?0:1,id).run();
