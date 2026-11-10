@@ -64,6 +64,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
+      if (url.pathname === "/api/menu/products" && request.method === "GET") {
+        if (!env.DB) return json({error:"Base de données non configurée."},503);
+        const {results=[]}=await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url FROM products WHERE available=1 ORDER BY category,name").all();
+        return json({products:results});
+      }
       if(url.pathname==="/api/staff/login"&&request.method==="POST"){
         if(!env.DB||!env.SESSION_SECRET)return json({error:"Service indisponible."},503);
         const d=await body(request);
@@ -144,14 +149,25 @@ export default {
       if (!env.DB) return json({error:"Base de données non configurée."},503);
       if (url.pathname === "/api/admin/session" && request.method === "GET") return json({ok:true,username:env.ADMIN_USERNAME});
       if (url.pathname === "/api/admin/products" && request.method === "GET") {
-        const {results=[]} = await env.DB.prepare("SELECT id,name,description,price_cents,category,available,created_at FROM products ORDER BY category,name").all();
+        const {results=[]} = await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url,available,created_at FROM products ORDER BY category,name").all();
         return json({products:results});
       }
       if (url.pathname === "/api/admin/products" && request.method === "POST") {
         const d=await body(request);
         if (!d || typeof d.name!=="string" || !d.name.trim() || !Number.isInteger(d.price_cents) || d.price_cents<0 || d.price_cents>10000000) return json({error:"Nom et prix en cents valides requis."},400);
-        const result=await env.DB.prepare("INSERT INTO products(name,description,price_cents,category,available) VALUES(?,?,?,?,?)").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),d.available===false?0:1).run();
+        const result=await env.DB.prepare("INSERT INTO products(name,description,price_cents,category,image_url,available) VALUES(?,?,?,?,?,?)").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),String(d.image_url||""),d.available===false?0:1).run();
         return json({ok:true,id:result.meta.last_row_id},201);
+      }
+      if (/^\/api\/admin\/products\/\d+$/.test(url.pathname) && request.method === "PATCH") {
+        const id=Number(url.pathname.split("/").pop()),d=await body(request);
+        if(!Number.isInteger(id)||!d||typeof d.name!=="string"||!d.name.trim()||!Number.isInteger(d.price_cents)||d.price_cents<0||d.price_cents>10000000)return json({error:"Nom et prix en cents valides requis."},400);
+        await env.DB.prepare("UPDATE products SET name=?,description=?,price_cents=?,category=?,image_url=?,available=? WHERE id=?").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),String(d.image_url||""),d.available===false?0:1,id).run();
+        return json({ok:true});
+      }
+      if (/^\/api\/admin\/products\/\d+$/.test(url.pathname) && request.method === "DELETE") {
+        const id=Number(url.pathname.split("/").pop());
+        await env.DB.prepare("DELETE FROM products WHERE id=?").bind(id).run();
+        return json({ok:true});
       }
       if (url.pathname === "/api/admin/orders" && request.method === "GET") {
         const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,status,total_cents,created_at FROM orders ORDER BY created_at DESC LIMIT 100").all();
