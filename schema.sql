@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT NOT NULL DEFAULT '',
   price_cents INTEGER NOT NULL CHECK(price_cents >= 0),
   category TEXT NOT NULL DEFAULT 'Autres',
+  image_url TEXT NOT NULL DEFAULT '',
   available INTEGER NOT NULL DEFAULT 1 CHECK(available IN (0,1)),
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
