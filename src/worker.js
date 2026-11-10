@@ -40,6 +40,7 @@ async function validSession(request, secret) {
 const cookie = value => `${COOKIE}=${value}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_SECONDS}`;
 const clearCookie = `${COOKIE}=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`;
 async function body(request) { try { return await request.json(); } catch { return null; } }
+function validProductImage(value) { const image=String(value||""); return image.length<=1500000 && (image==="" || /^https:\/\//i.test(image) || /^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(image)); }
 async function ensureProductImageColumn(env) {
   const {results=[]}=await env.DB.prepare("PRAGMA table_info(products)").all();
   if(!results.some(column=>column.name==="image_url")) {
@@ -164,6 +165,7 @@ export default {
         await ensureProductImageColumn(env);
         const d=await body(request);
         if (!d || typeof d.name!=="string" || !d.name.trim() || !Number.isInteger(d.price_cents) || d.price_cents<0 || d.price_cents>10000000) return json({error:"Nom et prix en cents valides requis."},400);
+        if(!validProductImage(d.image_url))return json({error:"Photo invalide ou trop volumineuse. Réessaie avec une autre image."},400);
         const result=await env.DB.prepare("INSERT INTO products(name,description,price_cents,category,image_url,available) VALUES(?,?,?,?,?,?)").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),String(d.image_url||""),d.available===false?0:1).run();
         return json({ok:true,id:result.meta.last_row_id},201);
       }
@@ -171,6 +173,7 @@ export default {
         await ensureProductImageColumn(env);
         const id=Number(url.pathname.split("/").pop()),d=await body(request);
         if(!Number.isInteger(id)||!d||typeof d.name!=="string"||!d.name.trim()||!Number.isInteger(d.price_cents)||d.price_cents<0||d.price_cents>10000000)return json({error:"Nom et prix en cents valides requis."},400);
+        if(!validProductImage(d.image_url))return json({error:"Photo invalide ou trop volumineuse. Réessaie avec une autre image."},400);
         await env.DB.prepare("UPDATE products SET name=?,description=?,price_cents=?,category=?,image_url=?,available=? WHERE id=?").bind(d.name.trim(),String(d.description||""),d.price_cents,String(d.category||"Autres"),String(d.image_url||""),d.available===false?0:1,id).run();
         return json({ok:true});
       }
