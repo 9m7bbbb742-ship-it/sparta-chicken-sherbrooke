@@ -125,7 +125,7 @@ export default {
         if(s.role==="employee"&&/^\/api\/staff\/orders\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
           const id=Number(url.pathname.split("/").pop()),d=await body(request);
           if(!d||!["confirmed","preparing","ready","completed","cancelled"].includes(d.status))return json({error:"Statut invalide."},400);
-          await env.DB.prepare("UPDATE orders SET status=? WHERE id=?").bind(d.status,id).run();return json({ok:true});
+          await env.DB.prepare("UPDATE orders SET status=? WHERE id=?").bind(d.status,id).run();if(d.status==="cancelled")await env.DB.prepare("UPDATE deliveries SET status='cancelled' WHERE order_id=? AND status IN ('pending','assigned')").bind(id).run();return json({ok:true});
         }
         if(s.role==="employee"&&url.pathname==="/api/staff/reservations"&&request.method==="GET"){
           const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,party_size,reservation_at,notes,status FROM reservations WHERE status!='completed' AND status!='cancelled' ORDER BY reservation_at LIMIT 100").all();return json({reservations:results});
@@ -142,7 +142,7 @@ export default {
             return json({ok:true});
           }
           const result=await env.DB.prepare("UPDATE deliveries SET status=?,delivered_at=CASE WHEN ?='delivered' THEN datetime('now') ELSE delivered_at END WHERE id=? AND driver_name=? AND status IN ('assigned','picked_up')").bind(d.status,d.status,id,s.username).run();
-          if(!result.meta.changes)return json({error:"Livraison introuvable ou non assignée à ce compte."},404);return json({ok:true});
+          if(!result.meta.changes)return json({error:"Livraison introuvable ou non assignée à ce compte."},404);if(d.status==="delivered")await env.DB.prepare("UPDATE orders SET status='completed' WHERE id=(SELECT order_id FROM deliveries WHERE id=?) AND status NOT IN ('cancelled','completed')").bind(id).run();return json({ok:true});
         }
         return json({error:"Accès interdit."},403);
       }
