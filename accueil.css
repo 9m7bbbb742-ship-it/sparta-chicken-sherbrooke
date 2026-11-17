@@ -346,3 +346,13 @@ h1 em,h2 em{color:var(--gold);text-shadow:0 0 24px rgba(233,199,120,.23)}
  body,.hero:before,.hero:after,body:after,.btn-red,.hero-stamp .stamp-ring{animation:none!important}
  .reveal{opacity:1;transform:none;filter:none}
 }
+
+
+/* LOGO OFFICIEL — image complète, sans recadrage */
+.topbar{min-height:132px;height:auto;align-items:center}
+.topbar .brand{display:flex;align-items:center;flex:0 0 auto}
+.official-logo{display:block;width:clamp(150px,17vw,220px);height:clamp(112px,13vw,166px);object-fit:contain;object-position:center}
+.topbar .official-logo{width:clamp(150px,16vw,205px);height:clamp(112px,12vw,150px)}
+footer .official-logo{width:clamp(150px,18vw,210px);height:clamp(112px,13vw,158px)}
+@media(max-width:900px){.topbar{min-height:112px;padding:8px 16px}.topbar .official-logo{width:145px;height:104px}.menu-toggle{margin-left:auto}}
+@media(max-width:560px){.topbar{min-height:104px;padding:6px 12px}.topbar .official-logo{width:124px;height:92px}.order-pill{font-size:9px}}
