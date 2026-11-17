@@ -138,3 +138,33 @@ footer{background:#2c2528}
 .btn-red{background:#ff303b;box-shadow:0 0 30px rgba(255,48,59,.34),0 9px 34px rgba(255,48,59,.24)}
 .btn-ghost,.order-pill{border-color:#ffd36b;color:#ffdc8a}
 @media(max-width:900px){.nav{background:rgba(60,45,49,.96)}}
+
+/* SPARTA SIGNATURE — étoiles flottantes, braises et feu argent-or-bordeaux */
+:root{--burgundy:#762b40;--burgundy-deep:#4b202d;--silver:#e2e7eb}
+.ember-one,.ember-two{mix-blend-mode:screen}
+.ember-one{background:radial-gradient(ellipse,rgba(225,231,235,.55),rgba(173,181,188,.22) 38%,rgba(255,170,91,.12) 55%,transparent 75%);animation:sparta-smoke-left 13s ease-in-out infinite alternate,sparta-ember-flicker 5s ease-in-out infinite}
+.ember-two{background:radial-gradient(ellipse,rgba(255,207,111,.42),rgba(184,77,83,.2) 42%,rgba(204,213,220,.14) 58%,transparent 76%);animation:sparta-smoke-right 16s ease-in-out infinite alternate,sparta-ember-flicker 6s ease-in-out infinite reverse}
+@keyframes sparta-ember-flicker{0%,100%{opacity:.22}35%{opacity:.42}68%{opacity:.3}}
+.hero{isolation:isolate}
+.hero:before,.hero:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1}
+.hero:before{opacity:.72;background-image:radial-gradient(circle,rgba(255,231,174,.98) 0 1px,transparent 1.9px),radial-gradient(circle,rgba(226,234,240,.9) 0 1.2px,transparent 2px),radial-gradient(circle,rgba(255,86,73,.9) 0 1px,transparent 2px),radial-gradient(circle,rgba(255,202,100,.9) 0 1.5px,transparent 2.4px);background-size:137px 163px,191px 211px,229px 181px,283px 247px;background-position:12px 20px,70px 90px,140px 35px,25px 150px;animation:sparta-stars-drift 26s linear infinite,sparta-stars-twinkle 4s ease-in-out infinite alternate;mask-image:linear-gradient(180deg,transparent 0%,#000 12%,#000 85%,transparent 100%)}
+.hero:after{opacity:.7;background:radial-gradient(ellipse at 16% 84%,rgba(255,89,67,.25),transparent 24%),radial-gradient(ellipse at 76% 77%,rgba(255,194,89,.22),transparent 26%),radial-gradient(ellipse at 48% 28%,rgba(224,232,238,.2),transparent 22%);filter:blur(22px);animation:sparta-fire-breath 7s ease-in-out infinite alternate;mix-blend-mode:screen}
+@keyframes sparta-stars-drift{from{background-position:12px 20px,70px 90px,140px 35px,25px 150px}to{background-position:-80px 260px,190px 330px,20px 290px,240px 410px}}
+@keyframes sparta-stars-twinkle{from{opacity:.34}to{opacity:.88}}
+@keyframes sparta-fire-breath{0%{transform:translate3d(-1%,2%,0) scale(.96);opacity:.38}50%{transform:translate3d(1%,-1%,0) scale(1.04);opacity:.78}100%{transform:translate3d(0,2%,0) scale(1.08);opacity:.52}}
+.hero-copy{position:relative;z-index:2}.hero-stamp,.hero-bottom{z-index:3}
+.topbar{background:linear-gradient(rgba(65,45,52,.86),rgba(55,39,45,.24));border-bottom-color:rgba(255,211,107,.42);box-shadow:0 8px 34px rgba(25,12,18,.12)}
+.hero-shade{background:linear-gradient(90deg,rgba(34,23,29,.38) 0%,rgba(66,37,47,.22) 43%,rgba(55,34,39,.04) 100%),linear-gradient(0deg,rgba(48,37,42,.48) 0%,transparent 34%,rgba(46,30,36,.02) 100%)}
+.hero-video{filter:saturate(1.2) brightness(1.16) contrast(1.03)}
+.eyebrow,.hero-footnote,.hero-bottom{text-shadow:0 0 14px rgba(255,211,107,.22)}
+h1 em,h2 em{text-shadow:0 0 22px rgba(255,196,79,.2)}
+.btn-red{background:linear-gradient(115deg,#ff3545,#c51f3c 58%,#8c2945);background-size:180% 100%;animation:sparta-red-flow 5s ease-in-out infinite,sparta-red-pulse 4.5s ease-in-out infinite}
+@keyframes sparta-red-flow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.btn-ghost,.order-pill{box-shadow:inset 0 0 18px rgba(255,211,107,.08),0 0 22px rgba(255,211,107,.13)}
+.food-card{border-color:rgba(255,211,107,.5);box-shadow:0 14px 38px rgba(12,7,12,.2),0 0 18px rgba(118,43,64,.1)}
+.manifesto{background:linear-gradient(120deg,#50343e,#332b30 72%)}
+.promise{border-color:rgba(255,211,107,.38)}
+.final-cta{background:radial-gradient(ellipse at center,rgba(157,51,77,.38),transparent 68%)}
+.halal-seal{filter:drop-shadow(0 0 20px rgba(255,211,107,.48)) drop-shadow(0 0 28px rgba(45,148,86,.2))}
+@media(max-width:560px){.hero:before{opacity:.62;background-size:113px 143px,167px 187px,211px 169px,251px 223px}.hero:after{filter:blur(16px)}}
+@media(prefers-reduced-motion:reduce){.hero:before,.hero:after,.ember-one,.ember-two,.btn-red{animation:none!important}.hero:before{opacity:.38}}
