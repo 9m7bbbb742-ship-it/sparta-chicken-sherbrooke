@@ -168,3 +168,38 @@ h1 em,h2 em{text-shadow:0 0 22px rgba(255,196,79,.2)}
 .halal-seal{filter:drop-shadow(0 0 20px rgba(255,211,107,.48)) drop-shadow(0 0 28px rgba(45,148,86,.2))}
 @media(max-width:560px){.hero:before{opacity:.62;background-size:113px 143px,167px 187px,211px 169px,251px 223px}.hero:after{filter:blur(16px)}}
 @media(prefers-reduced-motion:reduce){.hero:before,.hero:after,.ember-one,.ember-two,.btn-red{animation:none!important}.hero:before{opacity:.38}}
+
+
+/* Ajustement fin : ambiance un peu plus foncée, brume discrète et nette */
+:root{--bg:#30282c;--panel:#403137;--burgundy:#68283b;--burgundy-deep:#421e2b;--silver:#cbd0d4;--gold:#eec15c;--red:#ed3042}
+body{
+ background:
+  radial-gradient(ellipse at 14% 18%,rgba(116,42,61,.25),transparent 38%),
+  radial-gradient(ellipse at 82% 48%,rgba(178,166,160,.09),transparent 36%),
+  linear-gradient(135deg,#383034 0%,#2d272b 50%,#3b2b32 100%);
+}
+body:before{
+ background:
+  radial-gradient(ellipse at 18% 28%,rgba(194,201,205,.13),transparent 27%),
+  radial-gradient(ellipse at 72% 42%,rgba(190,197,201,.11),transparent 29%),
+  radial-gradient(ellipse at 43% 78%,rgba(166,174,180,.09),transparent 30%),
+  radial-gradient(ellipse at 84% 88%,rgba(125,43,62,.16),transparent 27%);
+ filter:blur(27px);opacity:.72;
+}
+body:after{opacity:.52;background:radial-gradient(ellipse at 50% 50%,transparent 56%,rgba(10,7,9,.16) 100%)}
+.ember-one{opacity:.17!important;filter:blur(54px)!important}
+.ember-two{opacity:.15!important;filter:blur(62px)!important}
+.hero:before{opacity:.48}
+.hero:after{opacity:.42;filter:blur(15px)}
+.hero-shade{
+ background:
+  linear-gradient(90deg,rgba(31,22,26,.46) 0%,rgba(55,33,41,.28) 43%,rgba(48,31,36,.06) 100%),
+  linear-gradient(0deg,rgba(42,33,37,.58) 0%,transparent 34%,rgba(40,28,33,.04) 100%);
+}
+.hero-video{filter:saturate(1.12) brightness(1.06) contrast(1.04)}
+.category-section{background:radial-gradient(ellipse at 78% 18%,rgba(117,39,59,.2),transparent 42%),linear-gradient(180deg,#383035,#30282c)}
+.food-card{background:#49363c}
+.manifesto{background:linear-gradient(120deg,#463139,#30282c 72%)}
+.manifesto-image img{filter:brightness(1.02) saturate(1.08)}
+footer{background:#292327}
+@media(max-width:560px){.hero:before{opacity:.4}.hero:after{opacity:.34}}
