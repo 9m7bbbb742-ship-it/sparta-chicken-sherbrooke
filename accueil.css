@@ -203,3 +203,57 @@ body:after{opacity:.52;background:radial-gradient(ellipse at 50% 50%,transparent
 .manifesto-image img{filter:brightness(1.02) saturate(1.08)}
 footer{background:#292327}
 @media(max-width:560px){.hero:before{opacity:.4}.hero:after{opacity:.34}}
+
+
+/* SPARTA — noir profond dominant (35–40% minimum), accents bordeaux, feu, or et argent */
+:root{
+ --bg:#100e10;
+ --panel:#1b171a;
+ --cream:#fff4e8;
+ --muted:#c9bdba;
+ --gold:#f2c45f;
+ --red:#ef293b;
+ --line:rgba(242,196,95,.34);
+}
+html,body{background-color:#100e10}
+body{
+ background:
+  radial-gradient(ellipse at 78% 24%,rgba(105,35,54,.20),transparent 34%),
+  radial-gradient(ellipse at 18% 82%,rgba(169,91,49,.09),transparent 30%),
+  linear-gradient(135deg,#171316 0%,#100e10 46%,#21151b 100%);
+ color:var(--cream);
+}
+body:before{
+ background:
+  radial-gradient(ellipse at 20% 25%,rgba(188,197,203,.07),transparent 26%),
+  radial-gradient(ellipse at 76% 62%,rgba(130,44,62,.12),transparent 30%),
+  radial-gradient(ellipse at 48% 90%,rgba(211,153,76,.07),transparent 25%);
+ filter:blur(24px);opacity:.58;
+}
+body:after{
+ background:radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,.42) 100%);
+ opacity:.72;
+}
+.topbar{background:linear-gradient(rgba(12,10,12,.97),rgba(18,13,16,.82));border-bottom-color:rgba(242,196,95,.3)}
+.hero-shade{
+ background:
+  linear-gradient(90deg,rgba(8,7,9,.91) 0%,rgba(15,10,13,.76) 38%,rgba(20,11,15,.24) 72%,rgba(8,7,9,.16) 100%),
+  linear-gradient(0deg,#100e10 0%,rgba(12,9,11,.16) 34%,rgba(8,7,9,.42) 100%);
+}
+.hero-video{filter:saturate(1.12) brightness(.91) contrast(1.08)}
+.hero:before{opacity:.42}
+.hero:after{opacity:.34;filter:blur(13px)}
+.category-section{background:linear-gradient(180deg,#100e10 0%,#191216 54%,#100e10 100%)}
+.food-card{background:#1b1519;border-color:rgba(242,196,95,.42);box-shadow:0 14px 38px rgba(0,0,0,.42)}
+.food-card img{filter:brightness(.91) saturate(1.08)}
+.food-card:after{background:linear-gradient(0deg,rgba(3,3,4,.96),rgba(5,4,5,.04) 72%),linear-gradient(120deg,transparent 45%,rgba(242,196,95,.08))}
+.manifesto{background:linear-gradient(115deg,#21151b 0%,#100e10 68%)}
+.manifesto-image:after{background:linear-gradient(90deg,transparent 55%,#100e10)}
+.promise{background:linear-gradient(90deg,#171115,#21151b,#171115);border-color:rgba(242,196,95,.3)}
+.final-cta{background:radial-gradient(ellipse at center,rgba(111,32,52,.24),transparent 62%),#100e10}
+footer{background:#090809;border-top-color:rgba(242,196,95,.28)}
+.btn-red{background:linear-gradient(115deg,#f02b3c,#a91d37 65%,#76263d)}
+.btn-ghost,.order-pill{background:rgba(8,7,9,.58);border-color:#eec15c;color:#f4d58c}
+.nav{color:#e4d8d0}
+.hero-desc,.manifesto-copy>p:not(.eyebrow){color:#d7cbc5}
+@media(max-width:900px){.nav{background:rgba(13,10,12,.98)}}
