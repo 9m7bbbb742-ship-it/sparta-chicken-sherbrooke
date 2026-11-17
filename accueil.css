@@ -9,3 +9,56 @@
 .halal-seal img{display:block;width:100%;height:100%;object-fit:contain}
 @media(max-width:900px){.halal-seal{top:17%;right:5vw;width:clamp(100px,17vw,145px)}}
 @media(max-width:560px){.halal-seal{top:105px;right:16px;width:94px}}
+
+/* Nouvelle ambiance Sparta : noir charbon adouci, bordeaux, or, rouge et brume lumineuse */
+:root{
+ --bg:#211b1a;--panel:#302326;--red:#ed2935;--gold:#efc45f;--cream:#fff3e3;
+ --muted:#d0c2bb;--line:rgba(239,196,95,.38);
+}
+html,body{background-color:#211b1a}
+body{
+ background:
+  radial-gradient(ellipse at 12% 18%,rgba(117,43,52,.34),transparent 38%),
+  radial-gradient(ellipse at 86% 45%,rgba(184,133,83,.16),transparent 34%),
+  linear-gradient(135deg,#292122 0%,#211b1a 48%,#2b2022 100%);
+}
+body:before,body:after{
+ content:"";position:fixed;inset:-18%;z-index:-1;pointer-events:none;
+}
+body:before{
+ background:
+  radial-gradient(ellipse at 22% 34%,rgba(202,207,210,.13),transparent 24%),
+  radial-gradient(ellipse at 72% 62%,rgba(196,199,202,.12),transparent 27%),
+  radial-gradient(ellipse at 48% 92%,rgba(126,43,58,.18),transparent 28%);
+ filter:blur(36px);animation:sparta-mist 19s ease-in-out infinite alternate;
+}
+body:after{
+ background:radial-gradient(ellipse at 50% 50%,transparent 48%,rgba(7,5,7,.2) 100%);
+ opacity:.7;animation:sparta-glow 8s ease-in-out infinite alternate;
+}
+@keyframes sparta-mist{0%{transform:translate3d(-2%,1%,0) scale(1)}50%{transform:translate3d(2%,-1%,0) scale(1.07)}100%{transform:translate3d(-1%,2%,0) scale(1.03)}}
+@keyframes sparta-glow{from{opacity:.35}to{opacity:.8}}
+.topbar{background:linear-gradient(rgba(35,25,27,.94),rgba(35,25,27,.28));border-bottom-color:rgba(239,196,95,.24);backdrop-filter:blur(8px)}
+.hero-shade{
+ background:
+  linear-gradient(90deg,rgba(24,16,18,.82) 0%,rgba(39,22,27,.62) 38%,rgba(40,24,25,.22) 100%),
+  linear-gradient(0deg,#211b1a 0%,transparent 25%,rgba(28,18,20,.16) 100%);
+}
+.hero-video{filter:saturate(1.12) brightness(.94)}
+.hero-stamp{filter:drop-shadow(0 0 12px rgba(239,196,95,.3))}
+.btn-red{box-shadow:0 0 22px rgba(237,41,53,.24),0 9px 32px rgba(237,41,53,.2);animation:sparta-red-pulse 4.5s ease-in-out infinite}
+.btn-ghost,.order-pill{box-shadow:inset 0 0 16px rgba(239,196,95,.045),0 0 18px rgba(239,196,95,.08)}
+@keyframes sparta-red-pulse{0%,100%{box-shadow:0 0 14px rgba(237,41,53,.18),0 9px 32px rgba(237,41,53,.16)}50%{box-shadow:0 0 28px rgba(237,41,53,.36),0 9px 38px rgba(237,41,53,.24)}}
+.category-section{background:radial-gradient(ellipse at 78% 18%,rgba(115,38,55,.24),transparent 42%),linear-gradient(180deg,#282021,#211b1a)}
+.food-card{background:#39292b;border-color:rgba(239,196,95,.42);box-shadow:0 12px 36px rgba(8,4,7,.22)}
+.food-card img{filter:brightness(.88) saturate(1.06)}
+.food-card:hover{box-shadow:0 0 26px rgba(239,196,95,.16),0 18px 42px rgba(8,4,7,.3)}
+.manifesto{background:linear-gradient(120deg,#302326,#211b1a 72%)}
+.manifesto-image img{filter:brightness(.9) saturate(1.08)}
+.manifesto-image:after{background:linear-gradient(90deg,transparent 60%,#282021)}
+.promise{background:rgba(54,35,40,.42);border-color:rgba(239,196,95,.3)}
+.final-cta{background:radial-gradient(ellipse at center,rgba(133,40,55,.34),transparent 64%)}
+footer{background:#1c1718;border-color:rgba(239,196,95,.28)}
+.halal-seal{filter:drop-shadow(0 0 18px rgba(239,196,95,.38)) drop-shadow(0 0 24px rgba(32,125,70,.18))}
+@media(max-width:900px){.nav{background:rgba(42,30,33,.97);backdrop-filter:blur(14px)}}
+@media(prefers-reduced-motion:reduce){body:before,body:after,.btn-red{animation:none}}
