@@ -5,7 +5,7 @@ Site du restaurant, menu dynamique et outils d’exploitation.
 ## Pages publiques
 - `index.html` : page d’accueil principale.
 - `menu.html` : produits publiés dans Cloudflare D1, filtres, panier et formulaire de commande.
-- `reservation.html` : page de demande de réservation (à raccorder à l’enregistrement serveur).
+- `reservation.html` : demande de réservation enregistrée dans D1, à confirmer par l’équipe.
 - `contact.html`, `avis.html`, `fidelite.html` : pages d’information; les fonctions de soumission/compte ne doivent pas être considérées comme actives tant que leur backend dédié n’est pas livré.
 - `accueil.html` : ancienne adresse redirigée vers `index.html`.
 
