@@ -77,6 +77,30 @@ export default {
         const {results=[]}=await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url FROM products WHERE available=1 ORDER BY category,name").all();
         return json({products:results});
       }
+      if (url.pathname === "/api/orders" && request.method === "POST") {
+        if (!env.DB) return json({error:"Service de commande indisponible."},503);
+        const origin=request.headers.get("Origin");
+        if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine de requête refusée."},403); } catch { return json({error:"Origine de requête invalide."},403); } }
+        if (!(request.headers.get("content-type")||"").toLowerCase().includes("application/json")) return json({error:"Format de commande invalide."},415);
+        const d=await body(request),name=typeof d?.customer_name==="string"?d.customer_name.trim():"",phone=typeof d?.customer_phone==="string"?d.customer_phone.trim():"",email=typeof d?.customer_email==="string"?d.customer_email.trim().toLowerCase():"",fulfillment=d?.fulfillment==="delivery"?"delivery":d?.fulfillment==="pickup"?"pickup":"",address=typeof d?.address==="string"?d.address.trim():"",notes=typeof d?.notes==="string"?d.notes.trim():"";
+        if (!name||name.length>120||!/^[+()0-9 .-]{7,25}$/.test(phone)||(email&&(email.length>254||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)))||!fulfillment||notes.length>500||(fulfillment==="delivery"&&(!address||address.length>300))) return json({error:"Vérifie le nom, le téléphone, le mode de réception et l’adresse de livraison."},400);
+        if (!Array.isArray(d.items)||d.items.length<1||d.items.length>30) return json({error:"Ajoute au moins un produit au panier."},400);
+        const normalized=[];
+        for(const item of d.items){const productId=Number(item?.product_id),quantity=Number(item?.quantity);if(!Number.isSafeInteger(productId)||productId<1||!Number.isSafeInteger(quantity)||quantity<1||quantity>20)return json({error:"Un article ou une quantité du panier est invalide."},400);normalized.push({product_id:productId,quantity});}
+        const ids=[...new Set(normalized.map(x=>x.product_id))],placeholders=ids.map(()=>"?").join(",");
+        const {results:products=[]}=await env.DB.prepare("SELECT id,name,price_cents FROM products WHERE available=1 AND id IN ("+placeholders+")").bind(...ids).all(),byId=new Map(products.map(p=>[p.id,p]));
+        if(byId.size!==ids.length)return json({error:"Un ou plusieurs produits ne sont plus disponibles. Actualise le menu."},409);
+        const lines=normalized.map(x=>{const p=byId.get(x.product_id);return {product_id:p.id,name:p.name,quantity:x.quantity,unit_price_cents:p.price_cents,line_total_cents:p.price_cents*x.quantity};}),subtotal=lines.reduce((sum,x)=>sum+x.line_total_cents,0);
+        if(!Number.isSafeInteger(subtotal)||subtotal<1||subtotal>100000000)return json({error:"Le total de la commande est invalide."},400);
+        const itemsJson=JSON.stringify(lines);
+        try{
+          const customer=await env.DB.prepare("INSERT INTO customers(name,email,phone) VALUES(?,?,?)").bind(name,email||null,phone).run();
+          const order=await env.DB.prepare("INSERT INTO orders(customer_id,customer_name,customer_phone,items_json,subtotal_cents,total_cents,status,payment_status) VALUES(?,?,?,?,?,?,'pending','unpaid')").bind(customer.meta.last_row_id,name,phone,itemsJson,subtotal,subtotal).run();
+          const orderId=order.meta.last_row_id;
+          if(fulfillment==="delivery")await env.DB.prepare("INSERT INTO deliveries(order_id,customer_name,address,driver_name,status,delivery_fee_cents,driver_cost_cents,distance_km,customer_phone,items_json,payment_method,payment_status) VALUES(?,?,?,'','pending',0,0,0,?,?, 'not_configured','unpaid')").bind(orderId,name,address,phone,itemsJson).run();
+          return json({ok:true,order_id:orderId,status:"pending",payment_status:"unpaid",message:"Commande enregistrée. Le paiement en ligne sera activé lors de l’intégration Stripe."},201);
+        }catch(error){console.error("Création de commande impossible",error);return json({error:"La commande n’a pas pu être enregistrée. Réessaie dans quelques instants."},500);}
+      }
       if(url.pathname==="/api/staff/login"&&request.method==="POST"){
         if(!env.DB||!env.SESSION_SECRET)return json({error:"Service indisponible."},503);
         const d=await body(request);
@@ -95,7 +119,7 @@ export default {
         if(!activeAccount)return json({error:"Compte désactivé. Reconnecte-toi avec un compte actif."},401,{"set-cookie":clearStaffCookie});
         if(url.pathname==="/api/staff/session"&&request.method==="GET")return json({ok:true,username:s.username,role:s.role});
         if(s.role==="employee"&&url.pathname==="/api/staff/orders"&&request.method==="GET"){
-          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,total_cents,status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
+          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,total_cents,status,payment_status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
           return json({orders:results});
         }
         if(s.role==="employee"&&/^\/api\/staff\/orders\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
@@ -107,13 +131,18 @@ export default {
           const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,party_size,reservation_at,notes,status FROM reservations WHERE status!='completed' AND status!='cancelled' ORDER BY reservation_at LIMIT 100").all();return json({reservations:results});
         }
         if(s.role==="driver"&&url.pathname==="/api/staff/deliveries"&&request.method==="GET"){
-          const {results=[]}=await env.DB.prepare("SELECT d.id,d.order_id,d.customer_name,d.address,d.customer_phone,d.items_json,d.status,d.distance_km,d.scheduled_at,d.eta_minutes,d.delivery_fee_cents,d.driver_cost_cents,d.created_at,d.delivered_at,d.payment_method,d.payment_status,o.total_cents,o.payment_status AS order_payment_status FROM deliveries d LEFT JOIN orders o ON o.id=d.order_id WHERE d.driver_name=? AND d.status IN ('assigned','picked_up','delivered') ORDER BY CASE WHEN d.status='delivered' THEN 1 ELSE 0 END,COALESCE(d.scheduled_at,d.created_at),d.created_at DESC LIMIT 200").bind(s.username).all();return json({deliveries:results});
+          const {results=[]}=await env.DB.prepare("SELECT d.id,d.order_id,d.customer_name,d.address,d.customer_phone,d.items_json,d.status,d.distance_km,d.scheduled_at,d.eta_minutes,d.delivery_fee_cents,d.driver_cost_cents,d.created_at,d.delivered_at,d.payment_method,d.payment_status,o.total_cents,o.payment_status AS order_payment_status FROM deliveries d LEFT JOIN orders o ON o.id=d.order_id WHERE (d.driver_name=? AND d.status IN ('assigned','picked_up','delivered')) OR (d.driver_name='' AND d.status='pending') ORDER BY CASE WHEN d.status='delivered' THEN 2 WHEN d.status='pending' THEN 1 ELSE 0 END,COALESCE(d.scheduled_at,d.created_at),d.created_at DESC LIMIT 200").bind(s.username).all();return json({deliveries:results});
         }
-        if(s.role==="driver"&&/^\/api\/staff\/deliveries\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
+        if(s.role==="driver"&&/^\\/api\\/staff\\/deliveries\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
           const id=Number(url.pathname.split("/").pop()),d=await body(request);
-          if(!d||!["picked_up","delivered"].includes(d.status))return json({error:"Statut invalide."},400);
-          const r=await env.DB.prepare("UPDATE deliveries SET status=?,delivered_at=CASE WHEN ?='delivered' THEN datetime('now') ELSE delivered_at END WHERE id=? AND driver_name=? AND status IN ('assigned','picked_up')").bind(d.status,d.status,id,s.username).run();
-          if(!r.meta.changes)return json({error:"Livraison introuvable ou non assignée à ce compte."},404);return json({ok:true});
+          if(!d||!["assigned","picked_up","delivered"].includes(d.status))return json({error:"Statut invalide."},400);
+          if(d.status==="assigned"){
+            const claim=await env.DB.prepare("UPDATE deliveries SET driver_name=?,status='assigned' WHERE id=? AND driver_name='' AND status='pending'").bind(s.username,id).run();
+            if(!claim.meta.changes)return json({error:"Cette livraison vient d’être prise par un autre livreur ou n’est plus disponible."},409);
+            return json({ok:true});
+          }
+          const result=await env.DB.prepare("UPDATE deliveries SET status=?,delivered_at=CASE WHEN ?='delivered' THEN datetime('now') ELSE delivered_at END WHERE id=? AND driver_name=? AND status IN ('assigned','picked_up')").bind(d.status,d.status,id,s.username).run();
+          if(!result.meta.changes)return json({error:"Livraison introuvable ou non assignée à ce compte."},404);return json({ok:true});
         }
         return json({error:"Accès interdit."},403);
       }
@@ -183,7 +212,7 @@ export default {
         return json({ok:true});
       }
       if (url.pathname === "/api/admin/orders" && request.method === "GET") {
-        const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,status,total_cents,created_at FROM orders ORDER BY created_at DESC LIMIT 100").all();
+        const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,status,payment_status,subtotal_cents,total_cents,created_at FROM orders ORDER BY created_at DESC LIMIT 100").all();
         return json({orders:results});
       }
       if (url.pathname === "/api/admin/reservations" && request.method === "GET") {
