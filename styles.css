@@ -653,3 +653,20 @@ label{color:#e9dfe2}
   .header{height:88px!important;min-height:88px!important;padding:5px 11px!important}
   .header .brand .official-logo{width:132px!important;height:76px!important}
 }
+
+
+/* LOGO SANS CADRE — fusion visuelle avec le fond noir du thème */
+.official-logo{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  mix-blend-mode:screen;
+  object-fit:contain!important;
+  isolation:auto;
+}
+.header .official-logo,.topbar .official-logo,.footer .official-logo{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
