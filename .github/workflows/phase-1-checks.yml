@@ -1,0 +1,78 @@
+name: Phase 1 checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, phase-1-online-orders-no-stripe, reconstruction-generale-sparta]
+
+jobs:
+  syntax-and-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check JavaScript syntax
+        run: |
+          node --input-type=module --check < src/worker.js
+          node --check app.js
+          node --check admin/admin.js
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import tempfile, subprocess
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.active = False
+                  self.parts = []
+                  self.current = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script" and not dict(attrs).get("src"):
+                      self.active = True
+                      self.current = []
+              def handle_data(self, data):
+                  if self.active:
+                      self.current.append(data)
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.active:
+                      self.parts.append("".join(self.current))
+                      self.active = False
+          files = ["restaurant/index.html", "livreur/index.html"]
+          with tempfile.TemporaryDirectory() as tmp:
+              index = 0
+              for name in files:
+                  parser = Scripts()
+                  parser.feed(Path(name).read_text(encoding="utf-8"))
+                  for script in parser.parts:
+                      index += 1
+                      path = Path(tmp) / f"inline-{index}.js"
+                      path.write_text(script, encoding="utf-8")
+                      subprocess.run(["node", "--check", str(path)], check=True)
+          PY
+      - name: Validate additive D1 migrations against the base schema
+        run: |
+          python - <<'PY'
+          import sqlite3
+          from pathlib import Path
+          db = sqlite3.connect(":memory:")
+          db.executescript(Path("schema.sql").read_text(encoding="utf-8"))
+          for name in [
+              "migrations/0002_staff_accounts.sql",
+              "migrations/0003_delivery_operations.sql",
+              "migrations/0004_order_checkout_details.sql",
+          ]:
+              db.executescript(Path(name).read_text(encoding="utf-8"))
+          columns = {row[1] for row in db.execute("PRAGMA table_info(orders)")}
+          required = {"customer_email", "fulfillment", "delivery_address", "notes"}
+          assert required <= columns, f"Missing order columns: {required - columns}"
+          columns = {row[1] for row in db.execute("PRAGMA table_info(deliveries)")}
+          required = {"customer_phone", "items_json", "scheduled_at", "eta_minutes", "payment_method", "payment_status"}
+          assert required <= columns, f"Missing delivery columns: {required - columns}"
+          print("Base schema + migrations 0002–0004: OK")
+          PY
