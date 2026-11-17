@@ -91,3 +91,50 @@ body:before{
   100%{transform:translate3d(-2%,-6%,0) scale(1.14)}
 }
 @media(prefers-reduced-motion:reduce){.ember-one,.ember-two{animation:none}}
+
+/* Éclaircissement général demandé : graphite chaud, brume argentée visible et feu doré */
+:root{
+ --bg:#393033;--panel:#49363a;--cream:#fff7ed;--muted:#e0d5d0;
+ --gold:#ffd36b;--red:#ff303b;--line:rgba(255,211,107,.48);
+}
+body{
+ background:
+  radial-gradient(ellipse at 14% 16%,rgba(155,67,77,.38),transparent 40%),
+  radial-gradient(ellipse at 82% 38%,rgba(209,187,165,.2),transparent 38%),
+  linear-gradient(135deg,#403538 0%,#30292c 52%,#443237 100%);
+}
+body:after{
+ background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(13,9,11,.08) 100%);
+ opacity:.35;
+}
+body:before{
+ background:
+  radial-gradient(ellipse at 18% 28%,rgba(224,229,231,.3),transparent 31%),
+  radial-gradient(ellipse at 72% 42%,rgba(215,220,222,.28),transparent 33%),
+  radial-gradient(ellipse at 43% 78%,rgba(190,198,202,.24),transparent 34%),
+  radial-gradient(ellipse at 84% 88%,rgba(145,57,72,.22),transparent 30%);
+ filter:blur(35px);opacity:1;
+}
+.ember-one{opacity:.34}
+.ember-two{opacity:.32}
+.topbar{background:linear-gradient(rgba(52,40,43,.82),rgba(52,40,43,.18));}
+.hero-shade{
+ background:
+  linear-gradient(90deg,rgba(30,22,24,.48) 0%,rgba(48,30,34,.32) 42%,rgba(50,32,33,.08) 100%),
+  linear-gradient(0deg,rgba(42,34,35,.74) 0%,transparent 32%,rgba(42,30,32,.04) 100%);
+}
+.hero-video{filter:saturate(1.18) brightness(1.12) contrast(1.04)}
+.hero-copy{text-shadow:0 2px 18px rgba(15,9,10,.28)}
+.hero-desc{color:#fff1e7}
+.category-section{background:radial-gradient(ellipse at 78% 18%,rgba(143,54,71,.28),transparent 42%),linear-gradient(180deg,#403337,#332b2e)}
+.food-card{background:#514044}
+.food-card img{filter:brightness(1.04) saturate(1.12)}
+.manifesto{background:linear-gradient(120deg,#49363a,#332b2e 72%)}
+.manifesto-image img{filter:brightness(1.08) saturate(1.12)}
+.manifesto-image:after{background:linear-gradient(90deg,transparent 66%,#3b3033)}
+.promise{background:rgba(91,62,68,.38)}
+.final-cta{background:radial-gradient(ellipse at center,rgba(165,62,79,.36),transparent 66%)}
+footer{background:#2c2528}
+.btn-red{background:#ff303b;box-shadow:0 0 30px rgba(255,48,59,.34),0 9px 34px rgba(255,48,59,.24)}
+.btn-ghost,.order-pill{border-color:#ffd36b;color:#ffdc8a}
+@media(max-width:900px){.nav{background:rgba(60,45,49,.96)}}
