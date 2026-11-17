@@ -133,7 +133,7 @@ export default {
         if(s.role==="driver"&&url.pathname==="/api/staff/deliveries"&&request.method==="GET"){
           const {results=[]}=await env.DB.prepare("SELECT d.id,d.order_id,d.customer_name,d.address,d.customer_phone,d.items_json,d.status,d.distance_km,d.scheduled_at,d.eta_minutes,d.delivery_fee_cents,d.driver_cost_cents,d.created_at,d.delivered_at,d.payment_method,d.payment_status,o.total_cents,o.payment_status AS order_payment_status FROM deliveries d LEFT JOIN orders o ON o.id=d.order_id WHERE (d.driver_name=? AND d.status IN ('assigned','picked_up','delivered')) OR (d.driver_name='' AND d.status='pending') ORDER BY CASE WHEN d.status='delivered' THEN 2 WHEN d.status='pending' THEN 1 ELSE 0 END,COALESCE(d.scheduled_at,d.created_at),d.created_at DESC LIMIT 200").bind(s.username).all();return json({deliveries:results});
         }
-        if(s.role==="driver"&&/^\\/api\\/staff\\/deliveries\\/\\d+$/.test(url.pathname)&&request.method==="PATCH"){
+        if(s.role==="driver"&&/^\/api\/staff\/deliveries\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
           const id=Number(url.pathname.split("/").pop()),d=await body(request);
           if(!d||!["assigned","picked_up","delivered"].includes(d.status))return json({error:"Statut invalide."},400);
           if(d.status==="assigned"){
