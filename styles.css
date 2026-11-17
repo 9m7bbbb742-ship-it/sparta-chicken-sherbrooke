@@ -588,3 +588,12 @@ label{color:#e9dfe2}
   .card .bottom{justify-content:space-between;gap:14px;margin-top:16px}
   .card .bottom button{min-height:46px;padding:10px 17px;font-size:13px}
 }
+
+
+/* LOGO OFFICIEL — toutes les pages internes, image entière visible */
+.header{min-height:126px;height:auto;align-items:center;gap:clamp(10px,2vw,26px);padding-top:8px;padding-bottom:8px}
+.header .brand{display:flex;align-items:center;flex:0 0 auto;min-width:0}
+.header .official-logo{display:block;width:clamp(145px,16vw,205px);height:clamp(108px,12vw,150px);object-fit:contain;object-position:center}
+.footer .official-logo{display:block;width:clamp(145px,17vw,205px);height:clamp(108px,12vw,150px);object-fit:contain}
+@media(max-width:900px){.header{min-height:112px;flex-wrap:wrap}.header .official-logo{width:140px;height:100px}}
+@media(max-width:600px){.header{min-height:100px;padding:6px 12px;gap:8px}.header .official-logo{width:118px;height:88px}.header .toggle{margin-left:auto}}
