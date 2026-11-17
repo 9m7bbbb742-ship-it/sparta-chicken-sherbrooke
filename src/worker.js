@@ -77,6 +77,16 @@ export default {
         const {results=[]}=await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url FROM products WHERE available=1 ORDER BY category,name").all();
         return json({products:results});
       }
+      if (url.pathname === "/api/reservations" && request.method === "POST") {
+        if (!env.DB) return json({error:"Service de réservation indisponible."},503);
+        const origin=request.headers.get("Origin");
+        if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine de requête refusée."},403); } catch { return json({error:"Origine de requête invalide."},403); } }
+        if (!(request.headers.get("content-type")||"").toLowerCase().includes("application/json")) return json({error:"Format de demande invalide."},415);
+        const d=await body(request),name=typeof d?.customer_name==="string"?d.customer_name.trim():"",phone=typeof d?.customer_phone==="string"?d.customer_phone.trim():"",at=typeof d?.reservation_at==="string"?d.reservation_at.trim():"",notes=typeof d?.notes==="string"?d.notes.trim():"",party=Number(d?.party_size);
+        if(!name||name.length>120||!/^[+()0-9 .-]{7,25}$/.test(phone)||!Number.isInteger(party)||party<1||party>20||at.length!==16||at[4]!=="-"||at[7]!=="-"||at[10]!=="T"||at[13]!==":"||notes.length>500)return json({error:"Vérifie le nom, le téléphone, le nombre de personnes et la date souhaitée."},400);
+        const result=await env.DB.prepare("INSERT INTO reservations(customer_name,customer_phone,party_size,reservation_at,notes) VALUES(?,?,?,?,?)").bind(name,phone,party,at.replace("T"," "),notes).run();
+        return json({ok:true,reservation_id:result.meta.last_row_id,status:"pending",message:"Demande reçue. L’équipe doit confirmer la disponibilité."},201);
+      }
       if (url.pathname === "/api/orders" && request.method === "POST") {
         if (!env.DB) return json({error:"Service de commande indisponible."},503);
         const origin=request.headers.get("Origin");
