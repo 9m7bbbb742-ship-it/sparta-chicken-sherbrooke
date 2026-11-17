@@ -62,3 +62,32 @@ footer{background:#1c1718;border-color:rgba(239,196,95,.28)}
 .halal-seal{filter:drop-shadow(0 0 18px rgba(239,196,95,.38)) drop-shadow(0 0 24px rgba(32,125,70,.18))}
 @media(max-width:900px){.nav{background:rgba(42,30,33,.97);backdrop-filter:blur(14px)}}
 @media(prefers-reduced-motion:reduce){body:before,body:after,.btn-red{animation:none}}
+
+/* Brume grise de feu : fumée douce, argentée et mouvante */
+.ember-one{
+ background:radial-gradient(ellipse,rgba(190,196,199,.48) 0%,rgba(119,126,132,.22) 34%,transparent 72%);
+ opacity:.22;filter:blur(72px);animation:sparta-smoke-left 17s ease-in-out infinite alternate;
+}
+.ember-two{
+ background:radial-gradient(ellipse,rgba(211,214,213,.38) 0%,rgba(126,132,137,.18) 38%,transparent 74%);
+ opacity:.2;filter:blur(86px);animation:sparta-smoke-right 22s ease-in-out infinite alternate;
+}
+body:before{
+ background:
+  radial-gradient(ellipse at 18% 30%,rgba(201,207,210,.2),transparent 29%),
+  radial-gradient(ellipse at 72% 42%,rgba(177,184,188,.19),transparent 31%),
+  radial-gradient(ellipse at 43% 78%,rgba(151,158,163,.17),transparent 32%),
+  radial-gradient(ellipse at 84% 88%,rgba(117,43,52,.18),transparent 28%);
+ filter:blur(42px);opacity:.9;
+}
+@keyframes sparta-smoke-left{
+  0%{transform:translate3d(-5%,4%,0) scale(.92)}
+  50%{transform:translate3d(8%,-3%,0) scale(1.12)}
+  100%{transform:translate3d(2%,7%,0) scale(1.04)}
+}
+@keyframes sparta-smoke-right{
+  0%{transform:translate3d(6%,-4%,0) scale(1.08)}
+  50%{transform:translate3d(-7%,5%,0) scale(.94)}
+  100%{transform:translate3d(-2%,-6%,0) scale(1.14)}
+}
+@media(prefers-reduced-motion:reduce){.ember-one,.ember-two{animation:none}}
