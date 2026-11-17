@@ -95,7 +95,7 @@ export default {
         const itemsJson=JSON.stringify(lines);
         try{
           const customer=await env.DB.prepare("INSERT INTO customers(name,email,phone) VALUES(?,?,?)").bind(name,email||null,phone).run();
-          const order=await env.DB.prepare("INSERT INTO orders(customer_id,customer_name,customer_phone,items_json,subtotal_cents,total_cents,status,payment_status) VALUES(?,?,?,?,?,?,'pending','unpaid')").bind(customer.meta.last_row_id,name,phone,itemsJson,subtotal,subtotal).run();
+          const order=await env.DB.prepare("INSERT INTO orders(customer_id,customer_name,customer_phone,customer_email,fulfillment,delivery_address,notes,items_json,subtotal_cents,total_cents,status,payment_status) VALUES(?,?,?,?,?,?,?,?,?,?,'pending','unpaid')").bind(customer.meta.last_row_id,name,phone,email,fulfillment,address,notes,itemsJson,subtotal,subtotal).run();
           const orderId=order.meta.last_row_id;
           if(fulfillment==="delivery")await env.DB.prepare("INSERT INTO deliveries(order_id,customer_name,address,driver_name,status,delivery_fee_cents,driver_cost_cents,distance_km,customer_phone,items_json,payment_method,payment_status) VALUES(?,?,?,'','pending',0,0,0,?,?, 'not_configured','unpaid')").bind(orderId,name,address,phone,itemsJson).run();
           return json({ok:true,order_id:orderId,status:"pending",payment_status:"unpaid",message:"Commande enregistrée. Le paiement en ligne sera activé lors de l’intégration Stripe."},201);
@@ -119,7 +119,7 @@ export default {
         if(!activeAccount)return json({error:"Compte désactivé. Reconnecte-toi avec un compte actif."},401,{"set-cookie":clearStaffCookie});
         if(url.pathname==="/api/staff/session"&&request.method==="GET")return json({ok:true,username:s.username,role:s.role});
         if(s.role==="employee"&&url.pathname==="/api/staff/orders"&&request.method==="GET"){
-          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,total_cents,status,payment_status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
+          const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,fulfillment,delivery_address,notes,total_cents,status,payment_status,created_at FROM orders WHERE status!='completed' AND status!='cancelled' ORDER BY created_at DESC LIMIT 100").all();
           return json({orders:results});
         }
         if(s.role==="employee"&&/^\/api\/staff\/orders\/\d+$/.test(url.pathname)&&request.method==="PATCH"){
@@ -212,7 +212,7 @@ export default {
         return json({ok:true});
       }
       if (url.pathname === "/api/admin/orders" && request.method === "GET") {
-        const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,status,payment_status,subtotal_cents,total_cents,created_at FROM orders ORDER BY created_at DESC LIMIT 100").all();
+        const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,fulfillment,delivery_address,notes,status,payment_status,subtotal_cents,total_cents,created_at FROM orders ORDER BY created_at DESC LIMIT 100").all();
         return json({orders:results});
       }
       if (url.pathname === "/api/admin/reservations" && request.method === "GET") {
