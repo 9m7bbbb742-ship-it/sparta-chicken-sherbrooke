@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+<title id="title">Sparta Chicken — Halal 100%</title><desc id="desc">Sceau vert et or avec couronne, emblème Sparta et inscription Halal 100 pour cent.</desc>
+<defs><radialGradient id="g" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#174b2b"/><stop offset="1" stop-color="#062414"/></radialGradient><linearGradient id="gold" x2="1" y2="1"><stop stop-color="#fff0a2"/><stop offset=".45" stop-color="#e8b94c"/><stop offset="1" stop-color="#a66b13"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<circle cx="120" cy="120" r="108" fill="#050806" stroke="url(#gold)" stroke-width="5" filter="url(#glow)"/><circle cx="120" cy="120" r="96" fill="url(#g)" stroke="#e8b94c" stroke-width="2.5"/><circle cx="120" cy="120" r="85" fill="none" stroke="#c9942e" stroke-width="1" stroke-dasharray="2 5"/>
+<path d="M91 48l9-20 12 13 8-19 9 19 13-13 7 20z" fill="url(#gold)" stroke="#7d5414" stroke-width="2"/>
+<path d="M108 57h24l7 14-7 15h-24l-7-15z" fill="#d9a52e" stroke="#f5d77a" stroke-width="2"/><path d="M111 65h18l-2 13h-14z" fill="#174b2b"/><path d="M111 64l-8-5 4 17 8 7 5-9 5 9 8-7 4-17-8 5-4-7-7 8-7-8z" fill="#e8b94c"/>
+<g fill="none" stroke="#e8b94c" stroke-width="3"><path d="M70 164c-19-22-22-48-8-70m108 70c19-22 22-48 8-70"/><path d="M64 99l-12-2 5 12m119-10 12-2-5 12"/></g>
+<g fill="#e8b94c" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle"><text x="120" y="119" font-size="33">حلال</text><text x="120" y="151" font-size="28" letter-spacing="1">HALAL</text><text x="120" y="174" font-size="16" letter-spacing="3">100%</text></g>
+<path d="M78 190q42 24 84 0" fill="none" stroke="url(#gold)" stroke-width="3" stroke-linecap="round"/>
+</svg>
