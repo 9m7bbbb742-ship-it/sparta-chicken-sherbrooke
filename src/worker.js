@@ -101,6 +101,33 @@ export default {
           return json({ok:true,order_id:orderId,status:"pending",payment_status:"unpaid",message:"Commande enregistrée. Le paiement en ligne sera activé lors de l’intégration Stripe."},201);
         }catch(error){console.error("Création de commande impossible",error);return json({error:"La commande n’a pas pu être enregistrée. Réessaie dans quelques instants."},500);}
       }
+      if (url.pathname === "/api/reservations" && request.method === "POST") {
+        if (!env.DB) return json({error:"Service de réservation indisponible."},503);
+        const origin=request.headers.get("Origin");
+        if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine refusée."},403); } catch { return json({error:"Origine invalide."},403); } }
+        const d=await body(request),name=typeof d?.name==="string"?d.name.trim():"",phone=typeof d?.phone==="string"?d.phone.trim():"",email=typeof d?.email==="string"?d.email.trim().toLowerCase():"",date=typeof d?.date==="string"?d.date:"",time=typeof d?.time==="string"?d.time:"",party=Number(d?.party_size||2),notes=typeof d?.notes==="string"?d.notes.trim():"";
+        if(!name||name.length>120||!/^[+()0-9 .-]{7,25}$/.test(phone)||(email&&(email.length>254||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)))||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)||!Number.isSafeInteger(party)||party<1||party>20||notes.length>1000) return json({error:"Vérifie tes coordonnées, la date, l’heure et le nombre de personnes."},400);
+        const requested=new Date(date+"T"+time+":00");
+        if(!Number.isFinite(requested.getTime())||requested.getTime()<Date.now()-60000)return json({error:"Choisis une date et une heure futures."},400);
+        try {
+          const columns=await env.DB.prepare("PRAGMA table_info(reservations)").all();
+          if(!columns.results?.some(x=>x.name==="customer_email"))await env.DB.prepare("ALTER TABLE reservations ADD COLUMN customer_email TEXT").run();
+          await env.DB.prepare("INSERT INTO reservations(customer_name,customer_phone,customer_email,party_size,reservation_at,notes,status) VALUES(?,?,?,?,?,?, 'pending')").bind(name,phone,email||null,party,date+" "+time,notes).run();
+          return json({ok:true,status:"pending",message:"Demande de réservation reçue. Le restaurant doit confirmer la disponibilité."},201);
+        } catch(error) { console.error("Réservation impossible",error); return json({error:"La demande n’a pas pu être enregistrée. Réessaie plus tard."},500); }
+      }
+      if (url.pathname === "/api/reviews" && request.method === "POST") {
+        if (!env.DB) return json({error:"Service d’avis indisponible."},503);
+        const origin=request.headers.get("Origin");
+        if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine refusée."},403); } catch { return json({error:"Origine invalide."},403); } }
+        const d=await body(request),name=typeof d?.name==="string"?d.name.trim():"",rating=Number(d?.rating),comment=typeof d?.comment==="string"?d.comment.trim():"";
+        if(!name||name.length>80||!Number.isInteger(rating)||rating<1||rating>5||!comment||comment.length<3||comment.length>2000)return json({error:"Indique un nom, une note de 1 à 5 et un commentaire (3 à 2 000 caractères)."},400);
+        try {
+          await env.DB.prepare("CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, display_name TEXT NOT NULL, rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5), comment TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', created_at TEXT NOT NULL DEFAULT (datetime('now')))").run();
+          const saved=await env.DB.prepare("INSERT INTO reviews(display_name,rating,comment,status) VALUES(?,?,?,'pending')").bind(name,rating,comment).run();
+          return json({ok:true,review_id:saved.meta.last_row_id,status:"pending",message:"Merci ! Ton avis a bien été transmis et sera vérifié avant publication."},201);
+        } catch(error) { console.error("Avis impossible",error); return json({error:"L’avis n’a pas pu être enregistré. Réessaie plus tard."},500); }
+      }
       if(url.pathname==="/api/staff/login"&&request.method==="POST"){
         if(!env.DB||!env.SESSION_SECRET)return json({error:"Service indisponible."},503);
         const d=await body(request);
@@ -211,12 +238,18 @@ export default {
         await env.DB.prepare("DELETE FROM products WHERE id=?").bind(id).run();
         return json({ok:true});
       }
+      if (url.pathname === "/api/admin/reviews" && request.method === "GET") {
+        const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'").first();
+        if(!exists)return json({reviews:[]});
+        const {results=[]}=await env.DB.prepare("SELECT id,display_name,rating,comment,status,created_at FROM reviews ORDER BY created_at DESC LIMIT 200").all();
+        return json({reviews:results});
+      }
       if (url.pathname === "/api/admin/orders" && request.method === "GET") {
         const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,items_json,fulfillment,delivery_address,notes,status,payment_status,subtotal_cents,total_cents,created_at FROM orders ORDER BY created_at DESC LIMIT 100").all();
         return json({orders:results});
       }
       if (url.pathname === "/api/admin/reservations" && request.method === "GET") {
-        const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,party_size,reservation_at,status,created_at FROM reservations ORDER BY reservation_at DESC LIMIT 100").all();
+        const {results=[]}=await env.DB.prepare("SELECT id,customer_name,customer_phone,customer_email,party_size,reservation_at,notes,status,created_at FROM reservations ORDER BY reservation_at DESC LIMIT 100").all();
         return json({reservations:results});
       }
 
