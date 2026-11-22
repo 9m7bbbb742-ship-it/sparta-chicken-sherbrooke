@@ -126,7 +126,7 @@ export default {
         const origin=request.headers.get("Origin");
         if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine refusée."},403); } catch { return json({error:"Origine invalide."},403); } }
         const d=await body(request),name=typeof d?.name==="string"?d.name.trim():"",phone=typeof d?.phone==="string"?d.phone.trim():"",email=typeof d?.email==="string"?d.email.trim().toLowerCase():"",date=typeof d?.date==="string"?d.date:"",time=typeof d?.time==="string"?d.time:"",party=Number(d?.party_size||2),notes=typeof d?.notes==="string"?d.notes.trim():"";
-        if(!name||name.length>120||!/^[+()0-9 .-]{7,25}$/.test(phone)||(email&&(email.length>254||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)))||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)||!Number.isSafeInteger(party)||party<1||party>20||notes.length>1000) return json({error:"Vérifie tes coordonnées, la date, l’heure et le nombre de personnes."},400);
+        if(!name||name.length>120||!/^[+()0-9 .-]{7,25}$/.test(phone)||(email&&(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)||!Number.isSafeInteger(party)||party<1||party>20||notes.length>1000) return json({error:"Vérifie tes coordonnées, la date, l’heure et le nombre de personnes."},400);
         const requested=new Date(date+"T"+time+":00");
         if(!Number.isFinite(requested.getTime())||requested.getTime()<Date.now()-60000)return json({error:"Choisis une date et une heure futures."},400);
         try {
