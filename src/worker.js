@@ -79,12 +79,24 @@ async function deliveryQuote(env,address){
   let point=await env.DB.prepare("SELECT lat,lon FROM delivery_geocodes WHERE address_key=?").bind(key).first();
   if(!point){
     const q=encodeURIComponent(key+", Montréal, Québec, Canada");
-    const response=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&country=ca&q="+q,{headers:{"accept":"application/json","user-agent":"SpartaChickenSherbrooke/1.0 (delivery address validation)"}});
-    if(!response.ok)return {ok:false,status:503,error:"Le service de vérification d’adresse est temporairement indisponible."};
-    const found=await response.json();
-    if(!Array.isArray(found)||!found.length)return {ok:false,status:422,error:"Adresse introuvable. Vérifie le numéro, la rue et le code postal."};
+    let found=[];
+    try {
+      const response=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&country=ca&q="+q,{headers:{"accept":"application/json","user-agent":"SpartaChickenSherbrooke/1.0 (delivery address validation)"}});
+      if(response.ok) found=await response.json();
+    } catch {}
+    if(!Array.isArray(found)||!found.length) {
+      try {
+        const fallback=await fetch("https://photon.komoot.io/api/?limit=1&lang=fr&q="+q,{headers:{"accept":"application/json"}});
+        if(fallback.ok) {
+          const data=await fallback.json();
+          const coordinates=data?.features?.[0]?.geometry?.coordinates;
+          if(Array.isArray(coordinates)&&coordinates.length>=2) found=[{lat:coordinates[1],lon:coordinates[0]}];
+        }
+      } catch {}
+    }
+    if(!Array.isArray(found)||!found.length)return {ok:false,status:422,error:"Adresse introuvable ou service de localisation momentanément indisponible. Ajoute la ville et le code postal."};
     point={lat:Number(found[0].lat),lon:Number(found[0].lon)};
-    if(!Number.isFinite(point.lat)||!Number.isFinite(point.lon))return {ok:false,status:503,error:"Impossible de localiser cette adresse."};
+    if(!Number.isFinite(point.lat)||!Number.isFinite(point.lon))return {ok:false,status:503,error:"Impossible de localiser cette adresse. Réessaie dans un instant."};
     await env.DB.prepare("INSERT OR REPLACE INTO delivery_geocodes(address_key,lat,lon) VALUES(?,?,?)").bind(key,point.lat,point.lon).run();
   }
   const rad=x=>x*Math.PI/180,lat1=rad(DELIVERY_ORIGIN.lat),lat2=rad(point.lat),dlat=lat2-lat1,dlon=rad(point.lon-DELIVERY_ORIGIN.lon);
