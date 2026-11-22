@@ -68,6 +68,32 @@ const clearStaffCookie="__Host-sparta_staff=; HttpOnly; Secure; SameSite=Strict;
 
 
 
+
+const DELIVERY_ORIGIN={lat:45.5170765,lon:-73.5675137};
+const DELIVERY_RADIUS_KM=15;
+const DELIVERY_FEE_CENTS=699;
+async function deliveryQuote(env,address){
+  if(typeof address!=="string"||address.trim().length<8||address.trim().length>300)return {ok:false,status:400,error:"Entre une adresse complète à Montréal."};
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS delivery_geocodes (address_key TEXT PRIMARY KEY,lat REAL NOT NULL,lon REAL NOT NULL,cached_at TEXT NOT NULL DEFAULT (datetime('now')))").run();
+  const key=address.trim().toLowerCase().replace(/\s+/g," ");
+  let point=await env.DB.prepare("SELECT lat,lon FROM delivery_geocodes WHERE address_key=?").bind(key).first();
+  if(!point){
+    const q=encodeURIComponent(key+", Montréal, Québec, Canada");
+    const response=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&country=ca&q="+q,{headers:{"accept":"application/json","user-agent":"SpartaChickenSherbrooke/1.0 (delivery address validation)"}});
+    if(!response.ok)return {ok:false,status:503,error:"Le service de vérification d’adresse est temporairement indisponible."};
+    const found=await response.json();
+    if(!Array.isArray(found)||!found.length)return {ok:false,status:422,error:"Adresse introuvable. Vérifie le numéro, la rue et le code postal."};
+    point={lat:Number(found[0].lat),lon:Number(found[0].lon)};
+    if(!Number.isFinite(point.lat)||!Number.isFinite(point.lon))return {ok:false,status:503,error:"Impossible de localiser cette adresse."};
+    await env.DB.prepare("INSERT OR REPLACE INTO delivery_geocodes(address_key,lat,lon) VALUES(?,?,?)").bind(key,point.lat,point.lon).run();
+  }
+  const rad=x=>x*Math.PI/180,lat1=rad(DELIVERY_ORIGIN.lat),lat2=rad(point.lat),dlat=lat2-lat1,dlon=rad(point.lon-DELIVERY_ORIGIN.lon);
+  const h=Math.sin(dlat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dlon/2)**2;
+  const distance=6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+  if(distance>DELIVERY_RADIUS_KM)return {ok:false,status:422,error:"Cette adresse est à "+distance.toFixed(1)+" km du restaurant. La livraison est limitée à 15 km."};
+  return {ok:true,distance_km:Number(distance.toFixed(2)),delivery_fee_cents:DELIVERY_FEE_CENTS,radius_km:DELIVERY_RADIUS_KM};
+}
+
 async function ensureOperationalSchema(env) {
   const definitions = {
     customers: { create:"CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))", columns:{name:"TEXT NOT NULL DEFAULT ''",email:"TEXT",phone:"TEXT",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))"} },
@@ -88,6 +114,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
+      if(url.pathname==="/api/delivery/check"&&request.method==="POST"){
+        if(!env.DB)return json({error:"Service de livraison indisponible."},503);
+        const d=await body(request),q=await deliveryQuote(env,d?.address);
+        return q.ok?json(q):json({error:q.error},q.status);
+      }
       if (url.pathname === "/api/menu/products" && request.method === "GET") {
         if (!env.DB) return json({error:"Base de données non configurée."},503);
       await ensureOperationalSchema(env);
@@ -103,21 +134,23 @@ export default {
         if (!(request.headers.get("content-type")||"").toLowerCase().includes("application/json")) return json({error:"Format de commande invalide."},415);
         const d=await body(request),name=typeof d?.customer_name==="string"?d.customer_name.trim():"",phone=typeof d?.customer_phone==="string"?d.customer_phone.trim():"",email=typeof d?.customer_email==="string"?d.customer_email.trim().toLowerCase():"",fulfillment=d?.fulfillment==="delivery"?"delivery":d?.fulfillment==="pickup"?"pickup":"",address=typeof d?.address==="string"?d.address.trim():"",notes=typeof d?.notes==="string"?d.notes.trim():"";
         if (!name||name.length>120||!/^[+()0-9 .-]{7,25}$/.test(phone)||(email&&(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))||!fulfillment||notes.length>500||(fulfillment==="delivery"&&(!address||address.length>300))) return json({error:"Vérifie le nom, le téléphone, le mode de réception et l’adresse de livraison."},400);
+        const delivery=fulfillment==="delivery"?await deliveryQuote(env,address):null;
+        if(delivery&&!delivery.ok)return json({error:delivery.error},delivery.status);
         if (!Array.isArray(d.items)||d.items.length<1||d.items.length>30) return json({error:"Ajoute au moins un produit au panier."},400);
         const normalized=[];
         for(const item of d.items){const productId=Number(item?.product_id),quantity=Number(item?.quantity);if(!Number.isSafeInteger(productId)||productId<1||!Number.isSafeInteger(quantity)||quantity<1||quantity>20)return json({error:"Un article ou une quantité du panier est invalide."},400);normalized.push({product_id:productId,quantity});}
         const ids=[...new Set(normalized.map(x=>x.product_id))],placeholders=ids.map(()=>"?").join(",");
         const {results:products=[]}=await env.DB.prepare("SELECT id,name,price_cents FROM products WHERE available=1 AND id IN ("+placeholders+")").bind(...ids).all(),byId=new Map(products.map(p=>[p.id,p]));
         if(byId.size!==ids.length)return json({error:"Un ou plusieurs produits ne sont plus disponibles. Actualise le menu."},409);
-        const lines=normalized.map(x=>{const p=byId.get(x.product_id);return {product_id:p.id,name:p.name,quantity:x.quantity,unit_price_cents:p.price_cents,line_total_cents:p.price_cents*x.quantity};}),subtotal=lines.reduce((sum,x)=>sum+x.line_total_cents,0);
+        const lines=normalized.map(x=>{const p=byId.get(x.product_id);return {product_id:p.id,name:p.name,quantity:x.quantity,unit_price_cents:p.price_cents,line_total_cents:p.price_cents*x.quantity};}),subtotal=lines.reduce((sum,x)=>sum+x.line_total_cents,0),deliveryFee=delivery?.delivery_fee_cents||0,total=subtotal+deliveryFee;
         if(!Number.isSafeInteger(subtotal)||subtotal<1||subtotal>100000000)return json({error:"Le total de la commande est invalide."},400);
         const itemsJson=JSON.stringify(lines);
         try{
           const customer=await env.DB.prepare("INSERT INTO customers(name,email,phone) VALUES(?,?,?)").bind(name,email||null,phone).run();
-          const order=await env.DB.prepare("INSERT INTO orders(customer_id,customer_name,customer_phone,customer_email,fulfillment,delivery_address,notes,items_json,subtotal_cents,total_cents,status,payment_status) VALUES(?,?,?,?,?,?,?,?,?,?,'pending','unpaid')").bind(customer.meta.last_row_id,name,phone,email,fulfillment,address,notes,itemsJson,subtotal,subtotal).run();
+          const order=await env.DB.prepare("INSERT INTO orders(customer_id,customer_name,customer_phone,customer_email,fulfillment,delivery_address,notes,items_json,subtotal_cents,total_cents,status,payment_status) VALUES(?,?,?,?,?,?,?,?,?,?,'pending','unpaid')").bind(customer.meta.last_row_id,name,phone,email,fulfillment,address,notes,itemsJson,subtotal,total).run();
           const orderId=order.meta.last_row_id;
-          if(fulfillment==="delivery")await env.DB.prepare("INSERT INTO deliveries(order_id,customer_name,address,driver_name,status,delivery_fee_cents,driver_cost_cents,distance_km,customer_phone,items_json,payment_method,payment_status) VALUES(?,?,?,'','pending',0,0,0,?,?, 'not_configured','unpaid')").bind(orderId,name,address,phone,itemsJson).run();
-          return json({ok:true,order_id:orderId,status:"pending",payment_status:"unpaid",message:"Commande enregistrée. Le paiement en ligne sera activé lors de l’intégration Stripe."},201);
+          if(fulfillment==="delivery")await env.DB.prepare("INSERT INTO deliveries(order_id,customer_name,address,driver_name,status,delivery_fee_cents,driver_cost_cents,distance_km,customer_phone,items_json,payment_method,payment_status) VALUES(?,?,?,'','pending',?,0,?,?,?,'not_configured','unpaid')").bind(orderId,name,address,deliveryFee,delivery.distance_km,phone,itemsJson).run();
+          return json({ok:true,order_id:orderId,status:"pending",payment_status:"unpaid",subtotal_cents:subtotal,delivery_fee_cents:deliveryFee,total_cents:total,distance_km:delivery?.distance_km||0,message:"Commande enregistrée. Le restaurant doit confirmer la commande."},201);
         }catch(error){console.error("Création de commande impossible",error);return json({error:"La commande n’a pas pu être enregistrée. Réessaie dans quelques instants."},500);}
       }
       if (url.pathname === "/api/reservations" && request.method === "POST") {
