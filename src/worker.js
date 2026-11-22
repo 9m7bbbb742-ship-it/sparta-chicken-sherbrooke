@@ -67,18 +67,37 @@ const staffCookie=value=>`__Host-sparta_staff=${value}; HttpOnly; Secure; SameSi
 const clearStaffCookie="__Host-sparta_staff=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0";
 
 
+
+async function ensureOperationalSchema(env) {
+  const definitions = {
+    customers: { create:"CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))", columns:{name:"TEXT NOT NULL DEFAULT ''",email:"TEXT",phone:"TEXT",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))"} },
+    orders: { create:"CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, customer_name TEXT NOT NULL, customer_phone TEXT NOT NULL DEFAULT '', customer_email TEXT, fulfillment TEXT NOT NULL DEFAULT 'pickup', delivery_address TEXT NOT NULL DEFAULT '', notes TEXT NOT NULL DEFAULT '', items_json TEXT NOT NULL DEFAULT '[]', subtotal_cents INTEGER NOT NULL DEFAULT 0, total_cents INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending', payment_status TEXT NOT NULL DEFAULT 'unpaid', created_at TEXT NOT NULL DEFAULT (datetime('now')))", columns:{customer_id:"INTEGER",customer_name:"TEXT NOT NULL DEFAULT ''",customer_phone:"TEXT NOT NULL DEFAULT ''",customer_email:"TEXT",fulfillment:"TEXT NOT NULL DEFAULT 'pickup'",delivery_address:"TEXT NOT NULL DEFAULT ''",notes:"TEXT NOT NULL DEFAULT ''",items_json:"TEXT NOT NULL DEFAULT '[]'",subtotal_cents:"INTEGER NOT NULL DEFAULT 0",total_cents:"INTEGER NOT NULL DEFAULT 0",status:"TEXT NOT NULL DEFAULT 'pending'",payment_status:"TEXT NOT NULL DEFAULT 'unpaid'",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))"} },
+    reservations: { create:"CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_name TEXT NOT NULL, customer_phone TEXT NOT NULL, customer_email TEXT, party_size INTEGER NOT NULL DEFAULT 2, reservation_at TEXT NOT NULL, notes TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'pending', created_at TEXT NOT NULL DEFAULT (datetime('now')))", columns:{customer_name:"TEXT NOT NULL DEFAULT ''",customer_phone:"TEXT NOT NULL DEFAULT ''",customer_email:"TEXT",party_size:"INTEGER NOT NULL DEFAULT 2",reservation_at:"TEXT NOT NULL DEFAULT ''",notes:"TEXT NOT NULL DEFAULT ''",status:"TEXT NOT NULL DEFAULT 'pending'",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))"} },
+    deliveries: { create:"CREATE TABLE IF NOT EXISTS deliveries (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER, customer_name TEXT NOT NULL, address TEXT NOT NULL, driver_name TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'pending', delivery_fee_cents INTEGER NOT NULL DEFAULT 0, driver_cost_cents INTEGER NOT NULL DEFAULT 0, distance_km REAL NOT NULL DEFAULT 0, customer_phone TEXT NOT NULL DEFAULT '', items_json TEXT NOT NULL DEFAULT '[]', payment_method TEXT NOT NULL DEFAULT 'not_configured', payment_status TEXT NOT NULL DEFAULT 'unpaid', scheduled_at TEXT, eta_minutes INTEGER, created_at TEXT NOT NULL DEFAULT (datetime('now')), delivered_at TEXT)", columns:{order_id:"INTEGER",customer_name:"TEXT NOT NULL DEFAULT ''",address:"TEXT NOT NULL DEFAULT ''",driver_name:"TEXT NOT NULL DEFAULT ''",status:"TEXT NOT NULL DEFAULT 'pending'",delivery_fee_cents:"INTEGER NOT NULL DEFAULT 0",driver_cost_cents:"INTEGER NOT NULL DEFAULT 0",distance_km:"REAL NOT NULL DEFAULT 0",customer_phone:"TEXT NOT NULL DEFAULT ''",items_json:"TEXT NOT NULL DEFAULT '[]'",payment_method:"TEXT NOT NULL DEFAULT 'not_configured'",payment_status:"TEXT NOT NULL DEFAULT 'unpaid'",scheduled_at:"TEXT",eta_minutes:"INTEGER",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))",delivered_at:"TEXT"} },
+    reviews: { create:"CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, display_name TEXT NOT NULL, rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5), comment TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', created_at TEXT NOT NULL DEFAULT (datetime('now')))", columns:{display_name:"TEXT NOT NULL DEFAULT ''",rating:"INTEGER NOT NULL DEFAULT 5",comment:"TEXT NOT NULL DEFAULT ''",status:"TEXT NOT NULL DEFAULT 'pending'",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))"} }
+  };
+  for (const [table, spec] of Object.entries(definitions)) {
+    await env.DB.prepare(spec.create).run();
+    const info=await env.DB.prepare("PRAGMA table_info("+table+")").all();
+    const present=new Set((info.results||[]).map(column=>column.name));
+    for(const [column,type] of Object.entries(spec.columns)) if(!present.has(column)) await env.DB.prepare("ALTER TABLE "+table+" ADD COLUMN "+column+" "+type).run();
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       if (url.pathname === "/api/menu/products" && request.method === "GET") {
         if (!env.DB) return json({error:"Base de données non configurée."},503);
+      await ensureOperationalSchema(env);
         await ensureProductImageColumn(env);
         const {results=[]}=await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url FROM products WHERE available=1 ORDER BY category,name").all();
         return json({products:results});
       }
       if (url.pathname === "/api/orders" && request.method === "POST") {
         if (!env.DB) return json({error:"Service de commande indisponible."},503);
+        await ensureOperationalSchema(env);
         const origin=request.headers.get("Origin");
         if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine de requête refusée."},403); } catch { return json({error:"Origine de requête invalide."},403); } }
         if (!(request.headers.get("content-type")||"").toLowerCase().includes("application/json")) return json({error:"Format de commande invalide."},415);
@@ -103,6 +122,7 @@ export default {
       }
       if (url.pathname === "/api/reservations" && request.method === "POST") {
         if (!env.DB) return json({error:"Service de réservation indisponible."},503);
+        await ensureOperationalSchema(env);
         const origin=request.headers.get("Origin");
         if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine refusée."},403); } catch { return json({error:"Origine invalide."},403); } }
         const d=await body(request),name=typeof d?.name==="string"?d.name.trim():"",phone=typeof d?.phone==="string"?d.phone.trim():"",email=typeof d?.email==="string"?d.email.trim().toLowerCase():"",date=typeof d?.date==="string"?d.date:"",time=typeof d?.time==="string"?d.time:"",party=Number(d?.party_size||2),notes=typeof d?.notes==="string"?d.notes.trim():"";
@@ -118,6 +138,7 @@ export default {
       }
       if (url.pathname === "/api/reviews" && request.method === "POST") {
         if (!env.DB) return json({error:"Service d’avis indisponible."},503);
+        await ensureOperationalSchema(env);
         const origin=request.headers.get("Origin");
         if (origin) { try { if (new URL(origin).host !== url.host) return json({error:"Origine refusée."},403); } catch { return json({error:"Origine invalide."},403); } }
         const d=await body(request),name=typeof d?.name==="string"?d.name.trim():"",rating=Number(d?.rating),comment=typeof d?.comment==="string"?d.comment.trim():"";
@@ -237,6 +258,10 @@ export default {
         const id=Number(url.pathname.split("/").pop());
         await env.DB.prepare("DELETE FROM products WHERE id=?").bind(id).run();
         return json({ok:true});
+      }
+      if (url.pathname === "/api/admin/customers" && request.method === "GET") {
+        const {results=[]}=await env.DB.prepare("SELECT c.id,c.name,c.email,c.phone,c.created_at,COUNT(o.id) AS order_count,COALESCE(SUM(o.total_cents),0) AS lifetime_value_cents,MAX(o.created_at) AS last_order_at FROM customers c LEFT JOIN orders o ON o.customer_id=c.id GROUP BY c.id ORDER BY c.created_at DESC LIMIT 500").all();
+        return json({customers:results});
       }
       if (url.pathname === "/api/admin/reviews" && request.method === "GET") {
         const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'").first();
