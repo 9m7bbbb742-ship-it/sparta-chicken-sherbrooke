@@ -680,3 +680,11 @@ body{position:relative;isolation:isolate;background:transparent}
 .embers{z-index:0!important}
 .header,main,.footer{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){.site-video-background video{display:none}}
+
+
+/* Correctif visibilité vidéo : les particules restent derrière la vidéo */
+.site-video-background{z-index:-1!important}
+.site-video-background video{opacity:.88!important;filter:brightness(.72) saturate(1.02) contrast(1.06)!important}
+.site-video-shade{background:linear-gradient(180deg,rgba(8,7,9,.48),rgba(12,9,12,.42) 48%,rgba(8,7,9,.62)),linear-gradient(90deg,rgba(10,7,10,.28),transparent 58%,rgba(10,7,10,.22))!important}
+.embers{z-index:-2!important;background:transparent!important}
+.embers:after{opacity:.32}
