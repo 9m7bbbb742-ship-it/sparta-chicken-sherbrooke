@@ -688,3 +688,13 @@ body{position:relative;isolation:isolate;background:transparent}
 .site-video-shade{background:linear-gradient(180deg,rgba(8,7,9,.48),rgba(12,9,12,.42) 48%,rgba(8,7,9,.62)),linear-gradient(90deg,rgba(10,7,10,.28),transparent 58%,rgba(10,7,10,.22))!important}
 .embers{z-index:-2!important;background:transparent!important}
 .embers:after{opacity:.32}
+
+
+/* VIDEO D'ARRIÈRE-PLAN — rendu clair sur toutes les pages secondaires */
+body:has(.site-video-background){background:transparent!important}
+.site-video-background{position:fixed!important;inset:0!important;z-index:-1!important;overflow:hidden!important;background:#080706!important}
+.site-video-background video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;opacity:1!important;filter:brightness(.96) saturate(1.08) contrast(1.03)!important}
+.site-video-shade{background:linear-gradient(180deg,rgba(8,7,9,.12),rgba(8,7,9,.18) 55%,rgba(8,7,9,.28)),linear-gradient(90deg,rgba(8,7,9,.10),transparent 58%,rgba(8,7,9,.08))!important}
+.embers{z-index:-2!important;background:transparent!important}
+.embers:after{opacity:.12!important}
+.page-hero{background:linear-gradient(120deg,rgba(8,7,9,.22),rgba(8,7,9,.08))!important}
