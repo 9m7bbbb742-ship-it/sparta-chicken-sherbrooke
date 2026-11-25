@@ -698,3 +698,26 @@ body:has(.site-video-background){background:transparent!important}
 .embers{z-index:-2!important;background:transparent!important}
 .embers:after{opacity:.08!important}
 .page-hero{background:linear-gradient(120deg,rgba(8,7,9,.12),rgba(8,7,9,.04))!important}
+
+
+/* Correctifs affichage mobile : le menu ouvert pousse le contenu au lieu de le recouvrir */
+@media(max-width:700px){
+  .header{height:auto;min-height:70px;flex-wrap:wrap;align-content:center;row-gap:0}
+  .header>.brand{order:1}
+  .header>.toggle{order:2;margin-left:auto}
+  .header>.nav{display:none;position:static;inset:auto;order:3;flex:0 0 calc(100% + 30px);width:calc(100% + 30px);margin:0 -15px;padding:8px 15px 12px;gap:0;flex-direction:column;max-height:65vh;overflow-y:auto;border-top:1px solid rgba(110,59,8,.28);box-shadow:0 12px 18px rgba(45,15,25,.14)}
+  .header>.nav.open{display:flex}
+  .header>.nav a{display:block;width:100%;padding:13px 10px;font-size:13px;line-height:1.35}
+  .page-hero{scroll-margin-top:80px}
+  .filters{gap:7px}
+  .filters button{min-height:40px;padding:9px 12px}
+  .products{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+  .card{min-width:0}
+  .card h3{overflow-wrap:anywhere}
+}
+@media(max-width:380px){
+  .products{grid-template-columns:1fr}
+  .card img{height:190px}
+}
+.site-video-background video{object-position:center center}
+.site-video-background{background:#241019}
