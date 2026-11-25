@@ -106,6 +106,38 @@ async function deliveryQuote(env,address){
   return {ok:true,distance_km:Number(distance.toFixed(2)),delivery_fee_cents:DELIVERY_FEE_CENTS,radius_km:DELIVERY_RADIUS_KM};
 }
 
+
+async function seedInitialMenu(env) {
+  const existing = await env.DB.prepare("SELECT COUNT(*) AS total FROM products").first();
+  if (Number(existing?.total || 0) > 0) return;
+  const items = [
+    ["César Signature","Laitue romaine, parmesan, croûtons et sauce César.",995,"salades","hero-salad.jpg"],
+    ["Grecque du Village","Tomates, concombre, oignon rouge, olives, feta et vinaigrette.",1095,"salades","hero-salad.jpg"],
+    ["César Poulet Grill","César Signature garnie de poulet grillé (4 oz).",1695,"salades","hero-salad.jpg"],
+    ["Grecque Poulet & Feta","Salade grecque avec poulet grillé (4 oz) et feta.",1795,"salades","hero-salad.jpg"],
+    ["Cuisse Signature","Cuisse de poulet grillée. Combo disponible avec frites et boisson.",995,"poulet","chicken.jpg"],
+    ["Poitrine Grillée","Poitrine de poulet grillée. Combo disponible avec frites et boisson.",1295,"poulet","grill.jpg"],
+    ["Brochettes Souvlaki","Brochettes de poulet souvlaki grillées. Combo disponible.",1395,"poulet","grill.jpg"],
+    ["Demi-Poulet Sparta","Demi-poulet grillé. Combo disponible avec frites et boisson.",1595,"poulet","chicken.jpg"],
+    ["Duo de Cuisses","Deux cuisses de poulet grillées. Combo disponible.",1595,"poulet","chicken.jpg"],
+    ["Pita Souvlaki Original","Poulet souvlaki, tzatziki et garnitures fraîches. Combo disponible.",1195,"poulet","hero-sandwich.jpg"],
+    ["Festin Sparta – Poulet entier","Poulet entier pour partager.",4595,"poulet","chicken.jpg"],
+    ["Sparta Classic","Burger, cheddar, laitue, tomate, cornichon et sauce Sparta.",1395,"burgers","hero-burger.jpg"],
+    ["Athena Crispy","Poulet croustillant, cheddar, laitue, cornichons et mayonnaise ail-citron.",1495,"burgers","hero-burger.jpg"],
+    ["Hellas Chicken","Poulet grillé, feta, tomate, laitue et tzatziki.",1495,"burgers","hero-burger.jpg"],
+    ["Pita Sparta Grill","Poulet souvlaki, tzatziki, tomate, oignon et laitue.",1295,"poulet","hero-sandwich.jpg"],
+    ["Le Crispy Méditerranéen","Poulet croustillant, laitue, tomate et mayonnaise ail-citron.",1395,"poulet","hero-sandwich.jpg"],
+    ["Le Feta Chicken Melt","Poulet grillé, feta, mozzarella, poivrons et sauce grecque.",1495,"poulet","hero-sandwich.jpg"],
+    ["Poutine Classique","Frites, fromage en grains et sauce brune.",1295,"accompagnements","grill.jpg"],
+    ["Poutine Poulet Sparta","Frites, fromage en grains, sauce et poulet grillé.",1695,"accompagnements","grill.jpg"],
+    ["Poutine Souvlaki Grecque","Frites, fromage en grains, sauce, poulet souvlaki, feta et tzatziki.",1795,"accompagnements","grill.jpg"]
+  ];
+  for (const [name,description,price,category,image] of items) {
+    await env.DB.prepare("INSERT INTO products(name,description,price_cents,category,image_url,available) VALUES(?,?,?,?,?,1)")
+      .bind(name,description,price,category,image).run();
+  }
+}
+
 async function ensureOperationalSchema(env) {
   const definitions = {
     customers: { create:"CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))", columns:{name:"TEXT NOT NULL DEFAULT ''",email:"TEXT",phone:"TEXT",created_at:"TEXT NOT NULL DEFAULT (datetime('now'))"} },
@@ -135,6 +167,7 @@ export default {
         if (!env.DB) return json({error:"Base de données non configurée."},503);
       await ensureOperationalSchema(env);
         await ensureProductImageColumn(env);
+        await seedInitialMenu(env);
         const {results=[]}=await env.DB.prepare("SELECT id,name,description,price_cents,category,image_url FROM products WHERE available=1 ORDER BY category,name").all();
         return json({products:results});
       }
