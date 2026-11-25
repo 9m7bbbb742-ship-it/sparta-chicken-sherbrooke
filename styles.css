@@ -690,11 +690,11 @@ body{position:relative;isolation:isolate;background:transparent}
 .embers:after{opacity:.32}
 
 
-/* VIDEO D'ARRIÈRE-PLAN — rendu clair sur toutes les pages secondaires */
+/* VIDEO D'ARRIÈRE-PLAN — éclairage renforcé sur les pages secondaires seulement */
 body:has(.site-video-background){background:transparent!important}
 .site-video-background{position:fixed!important;inset:0!important;z-index:-1!important;overflow:hidden!important;background:#080706!important}
-.site-video-background video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;opacity:1!important;filter:brightness(.96) saturate(1.08) contrast(1.03)!important}
-.site-video-shade{background:linear-gradient(180deg,rgba(8,7,9,.12),rgba(8,7,9,.18) 55%,rgba(8,7,9,.28)),linear-gradient(90deg,rgba(8,7,9,.10),transparent 58%,rgba(8,7,9,.08))!important}
+.site-video-background video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;opacity:1!important;filter:brightness(1.24) saturate(1.12) contrast(1.02)!important}
+.site-video-shade{background:linear-gradient(180deg,rgba(8,7,9,.04),rgba(8,7,9,.08) 55%,rgba(8,7,9,.16)),linear-gradient(90deg,rgba(8,7,9,.04),transparent 58%,rgba(8,7,9,.03))!important}
 .embers{z-index:-2!important;background:transparent!important}
-.embers:after{opacity:.12!important}
-.page-hero{background:linear-gradient(120deg,rgba(8,7,9,.22),rgba(8,7,9,.08))!important}
+.embers:after{opacity:.08!important}
+.page-hero{background:linear-gradient(120deg,rgba(8,7,9,.12),rgba(8,7,9,.04))!important}
