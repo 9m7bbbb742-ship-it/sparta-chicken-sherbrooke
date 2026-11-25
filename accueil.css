@@ -373,3 +373,53 @@ footer .official-logo{width:clamp(150px,18vw,210px);height:clamp(112px,13vw,158p
   border:0!important;
   box-shadow:none!important;
 }
+
+/* ================= Boutons & cartes modernes (couche finale) ================= */
+:root{--btn-red:#e5334b;--btn-red-hover:#f04a60;--btn-cream:#f8f3ed;--btn-ink:#17131a}
+
+/* Boutons principaux */
+body .btn,body a.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:52px;padding:0 26px;border-radius:14px;
+  font:600 16px/1 'DM Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;
+  border:1px solid transparent;cursor:pointer;
+  transition:background-color .18s ease,border-color .18s ease,transform .12s ease,box-shadow .18s ease;
+}
+body .btn:hover{transform:none;box-shadow:none}
+body .btn:active{transform:scale(.98)}
+body .btn b,body .order-pill span{display:none}
+
+body .btn.red,body .btn.btn-red,body .btn-red{
+  background:var(--btn-red);background-image:none;color:#fff;border-color:transparent;
+  box-shadow:0 6px 18px rgba(229,51,75,.28);
+}
+body .btn.red:hover,body .btn-red:hover{background:var(--btn-red-hover);box-shadow:0 8px 22px rgba(229,51,75,.36)}
+
+/* Boutons secondaires */
+body .btn.outline,body .btn.btn-ghost,body .btn-ghost{
+  background:rgba(248,243,237,.08);background-image:none;color:var(--btn-cream);
+  border:1px solid rgba(248,243,237,.24);box-shadow:none;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+body .btn.outline:hover,body .btn-ghost:hover{background:rgba(248,243,237,.16);border-color:rgba(248,243,237,.4)}
+
+/* Bouton « Commander » de l'en-tête */
+body .header .order-pill,body .order-pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:0 18px;border-radius:12px;
+  background:var(--btn-red);background-image:none;color:#fff;border:0;box-shadow:none;
+  font:600 15px/1 'DM Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;
+}
+body .order-pill:hover{background:var(--btn-red-hover)}
+
+/* Bouton hamburger et langue */
+body .header .menu-toggle,body .header .toggle,body .menu-toggle,body .toggle,body .lang{
+  min-width:44px;min-height:44px;padding:0 12px;border-radius:12px;
+  background:rgba(248,243,237,.08);border:1px solid rgba(248,243,237,.18);
+  color:var(--btn-cream);font:600 20px/1 'DM Sans',system-ui,sans-serif;
+}
+
+/* Focus clavier */
+body .btn:focus-visible,body .order-pill:focus-visible,body .menu-toggle:focus-visible{outline:2px solid var(--btn-cream);outline-offset:3px}
+@media(max-width:560px){body .btn{padding:0 16px;font-size:15px;min-height:50px;flex:1 1 auto}}
+@media(prefers-reduced-motion:reduce){body .btn{transition:none}}

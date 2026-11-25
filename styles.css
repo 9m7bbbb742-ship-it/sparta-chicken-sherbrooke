@@ -721,3 +721,97 @@ body:has(.site-video-background){background:transparent!important}
 }
 .site-video-background video{object-position:center center}
 .site-video-background{background:#241019}
+
+/* ================= Boutons & cartes modernes (couche finale) ================= */
+:root{--btn-red:#e5334b;--btn-red-hover:#f04a60;--btn-cream:#f8f3ed;--btn-ink:#17131a}
+
+/* Boutons principaux */
+body .btn,body a.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:52px;padding:0 26px;border-radius:14px;
+  font:600 16px/1 'DM Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;
+  border:1px solid transparent;cursor:pointer;
+  transition:background-color .18s ease,border-color .18s ease,transform .12s ease,box-shadow .18s ease;
+}
+body .btn:hover{transform:none;box-shadow:none}
+body .btn:active{transform:scale(.98)}
+body .btn b,body .order-pill span{display:none}
+
+body .btn.red,body .btn.btn-red,body .btn-red{
+  background:var(--btn-red);background-image:none;color:#fff;border-color:transparent;
+  box-shadow:0 6px 18px rgba(229,51,75,.28);
+}
+body .btn.red:hover,body .btn-red:hover{background:var(--btn-red-hover);box-shadow:0 8px 22px rgba(229,51,75,.36)}
+
+/* Boutons secondaires */
+body .btn.outline,body .btn.btn-ghost,body .btn-ghost{
+  background:rgba(248,243,237,.08);background-image:none;color:var(--btn-cream);
+  border:1px solid rgba(248,243,237,.24);box-shadow:none;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+body .btn.outline:hover,body .btn-ghost:hover{background:rgba(248,243,237,.16);border-color:rgba(248,243,237,.4)}
+
+/* Bouton « Commander » de l'en-tête */
+body .header .order-pill,body .order-pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:0 18px;border-radius:12px;
+  background:var(--btn-red);background-image:none;color:#fff;border:0;box-shadow:none;
+  font:600 15px/1 'DM Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;
+}
+body .order-pill:hover{background:var(--btn-red-hover)}
+
+/* Bouton hamburger et langue */
+body .header .menu-toggle,body .header .toggle,body .menu-toggle,body .toggle,body .lang{
+  min-width:44px;min-height:44px;padding:0 12px;border-radius:12px;
+  background:rgba(248,243,237,.08);border:1px solid rgba(248,243,237,.18);
+  color:var(--btn-cream);font:600 20px/1 'DM Sans',system-ui,sans-serif;
+}
+
+/* Filtres de catégories */
+body .filters{gap:8px}
+body .filters button{
+  min-height:42px;padding:0 16px;border-radius:999px;
+  background:rgba(23,19,26,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(248,243,237,.26);color:#f6efe9;
+  font:600 15px/1 'DM Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;
+  box-shadow:none;transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+}
+body .filters button:hover{transform:none;border-color:rgba(248,243,237,.4)}
+body .filters button.active{background:var(--btn-cream);background-image:none;color:var(--btn-ink);border-color:var(--btn-cream);box-shadow:none}
+
+/* Bouton Ajouter + prix */
+body .bottom{display:flex;align-items:center;justify-content:space-between;gap:10px}
+body .card .bottom b{font:700 20px/1 'DM Sans',system-ui,sans-serif;color:var(--btn-cream);white-space:nowrap}
+body .card .bottom button{
+  min-height:44px;padding:0 18px;border-radius:12px;border:0;
+  background:var(--btn-red);background-image:none;color:#fff;
+  font:600 15px/1 'DM Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;
+  transition:background-color .18s ease,transform .12s ease;
+}
+body .card .bottom button:hover{background:var(--btn-red-hover)}
+body .card .bottom button:active{transform:scale(.96)}
+
+/* Quantités du panier */
+body .cart-quantity button{border:1px solid rgba(248,243,237,.28);background:rgba(248,243,237,.08);color:var(--btn-cream);border-radius:10px}
+body .cart-quantity button:hover{background:rgba(248,243,237,.18);transform:none}
+
+/* Bouton de validation de commande */
+body .checkout-submit{width:100%;min-height:56px;font-size:17px}
+body .btn:disabled,body .btn[disabled],body button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+
+/* Focus clavier lisible */
+body .btn:focus-visible,body .order-pill:focus-visible,body .filters button:focus-visible,body .card .bottom button:focus-visible,body .toggle:focus-visible,body .menu-toggle:focus-visible{
+  outline:2px solid var(--btn-cream);outline-offset:3px;
+}
+
+/* Menu sur téléphone : une carte par ligne, photo à gauche */
+@media(max-width:560px){
+  body .products{grid-template-columns:1fr;gap:12px}
+  body .products .card{display:grid;grid-template-columns:112px minmax(0,1fr);border-radius:18px;overflow:hidden;min-height:150px}
+  body .products .card img{width:112px;height:100%;min-height:150px;object-fit:cover}
+  body .products .card>div{padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+  body .products .card h3{font-size:22px;line-height:1.05;margin:0;overflow-wrap:normal;word-break:normal;hyphens:manual}
+  body .products .card p{font-size:14px;line-height:1.4;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  body .products .card .bottom{margin-top:auto;padding-top:6px}
+  body .btn{width:100%}
+}
+@media(prefers-reduced-motion:reduce){body .btn,body .filters button,body .card .bottom button{transition:none}}
