@@ -670,3 +670,13 @@ label{color:#e9dfe2}
   border:0!important;
   box-shadow:none!important;
 }
+
+
+/* Fond vidéo partagé sur les pages secondaires — accueil laissé intact */
+body{position:relative;isolation:isolate;background:transparent}
+.site-video-background{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#100e12}
+.site-video-background video{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;opacity:.34;filter:brightness(.62) saturate(.88) contrast(1.08)}
+.site-video-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,10,14,.78),rgba(16,12,16,.66) 48%,rgba(9,8,10,.88)),linear-gradient(90deg,rgba(20,12,17,.42),transparent 55%,rgba(20,12,17,.28))}
+.embers{z-index:0!important}
+.header,main,.footer{position:relative;z-index:2}
+@media(prefers-reduced-motion:reduce){.site-video-background video{display:none}}
