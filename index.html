@@ -1,17 +1,60 @@
-<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Espace équipe | Sparta Chicken</title><style>
-:root{color-scheme:light;--wine:#681b2b;--gold:#e0ad36;--cream:#fff8e9}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#f8f0df,#ead5a7);color:#2b211b;font:15px system-ui}header{background:linear-gradient(110deg,#271e1e,#681b2b);color:#fff4df;padding:22px max(18px,calc((100vw - 950px)/2));border-bottom:4px solid var(--gold)}header h1{margin:3px 0;font-size:25px}header small{letter-spacing:.14em;color:#f0c765}main{max-width:950px;margin:25px auto;padding:0 16px}.panel,.card{background:var(--cream);border:1px solid #ddc58e;border-radius:15px;padding:18px;margin:14px 0;box-shadow:0 8px 24px #51320d0b}.login{max-width:420px;margin:9vh auto}.login h2{margin-top:0}label{display:grid;gap:6px;margin:12px 0;color:#5d4b3a;font-size:13px}input{padding:12px;border:1px solid #d9c18a;border-radius:9px;font:inherit}button{border:0;border-radius:9px;padding:11px 15px;background:linear-gradient(110deg,#f0ce73,#dba536);font-weight:800;color:#291d12;cursor:pointer;margin:4px}button.alt{background:#681b2b;color:#fff4df}.muted{color:#766b5e;font-size:13px}.error{color:#a72b25}.item{border-top:1px solid #eadbb9;padding:14px 0}.item:first-child{border:0}.pill{display:inline-block;background:#f2e3bd;border-radius:30px;padding:4px 9px;font-size:12px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}.lines{margin:8px 0;padding-left:18px}.lines li{margin:4px 0}.lines small{display:block;color:#a72b25;font-weight:700}.store{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:#2e9d57}.dot.off{background:#c0392b}button.warn{background:#c0392b;color:#fff}
-</style><body><header><small>BY SPARTA CHICKEN · SHERBROOKE</small><h1>Espace équipe restaurant</h1></header><main><section id="login" class="panel login"><h2>Connexion employé</h2><form id="loginForm"><label>Nom d’utilisateur<input name="username" autocomplete="username" required></label><label>Mot de passe<input name="password" type="password" autocomplete="current-password" required></label><button>Se connecter</button><p id="error" class="error"></p></form></section><section id="app" hidden><div class="row"><h2>Commandes à traiter</h2><button class="alt" id="refresh">Actualiser</button><button id="logout">Déconnexion</button></div><p class="muted">Mise à jour des statuts de préparation.</p><div id="store" class="panel store"></div><div id="orders"></div><h2>Réservations</h2><div id="reservations"></div></section></main><script>
-const $=s=>document.querySelector(s),money=n=>(Number(n||0)/100).toLocaleString('fr-CA',{style:'currency',currency:'CAD'}),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function api(p,o={}){const r=await fetch('/api/staff/'+p,{credentials:'same-origin',headers:{'content-type':'application/json'},...o}),d=await r.json();if(!r.ok)throw Error(d.error||'Erreur');return d}
-const FR={pending:'Nouvelle',confirmed:'Confirmée',preparing:'En préparation',ready:'Prête',completed:'Terminée',cancelled:'Annulée'};
-function itemsHtml(json){let items=[];try{items=JSON.parse(json||'[]')}catch{}if(!Array.isArray(items)||!items.length)return '<p>'+esc(json)+'</p>';return '<ul class="lines">'+items.map(i=>{const o=i.options||{},bits=[o.spice?'Épices : '+o.spice:'',...(o.removals||[]),o.note?'« '+o.note+' »':''].filter(Boolean);return '<li><b>'+esc(i.quantity)+' × '+esc(i.name)+'</b>'+(bits.length?'<small>'+esc(bits.join(' · '))+'</small>':'')+'</li>'}).join('')+'</ul>'}
-function renderStore(st){const open=st.open;$('#store').innerHTML='<div><span class="dot'+(open?'':' off')+'"></span><b>'+(open?'Commandes en ligne ouvertes':(st.paused?'Commandes en pause':'Fermé selon les horaires'))+'</b><br><span class="muted">Aujourd’hui : '+esc(st.today_label)+(st.paused?'':' · prochaine ouverture : '+esc(st.next_open_label||'—'))+'</span></div><button class="'+(st.paused?'alt':'warn')+'" data-pause="'+(st.paused?'0':'1')+'">'+(st.paused?'Reprendre les commandes':'Mettre en pause')+'</button>'}
-let seen=0;function beep(){try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.value=.15;o.start();o.stop(c.currentTime+.35)}catch{}}
-async function load(){const [o,r,st]=await Promise.all([api('orders'),api('reservations'),api('store')]);renderStore(st);const maxId=Math.max(0,...o.orders.map(x=>x.id));if(seen&&maxId>seen){beep();document.title='🔔 Nouvelle commande · Espace équipe'}seen=Math.max(seen,maxId);$('#orders').innerHTML=o.orders.length?o.orders.map(x=>'<article class="card"><div class="row"><b>Commande #'+x.id+' · '+esc(x.customer_name)+'</b><span class="pill">'+esc(FR[x.status]||x.status)+'</span></div><p>'+esc(x.customer_phone)+' · '+money(x.total_cents)+(x.eta_minutes?' · promis en '+x.eta_minutes+'–'+(x.eta_minutes+10)+' min':'')+'</p><p><b>'+((x.fulfillment==='delivery')?'Livraison':'Ramassage')+'</b>'+(x.fulfillment==='delivery'?' · '+esc(x.delivery_address||'Adresse manquante'):'')+'</p>'+itemsHtml(x.items_json)+(x.notes?'<p><b>Instructions :</b> '+esc(x.notes)+'</p>':'')+'<div class="row">'+['confirmed','preparing','ready','completed'].map(s=>'<button data-order="'+x.id+'" data-status="'+s+'">'+({confirmed:'Confirmer',preparing:'En préparation',ready:'Prête',completed:'Terminée'}[s])+'</button>').join('')+'</div></article>').join(''):'<p class="panel">Aucune commande active.</p>';$('#reservations').innerHTML=r.reservations.length?r.reservations.map(x=>'<article class="card"><b>'+esc(x.customer_name)+'</b> · '+x.party_size+' personne(s)<p>'+esc(x.reservation_at)+' · '+esc(x.customer_phone)+'</p><p>'+esc(x.notes)+'</p><span class="pill">'+esc(x.status)+'</span></article>').join(''):'<p class="panel">Aucune réservation active.</p>'}
-async function start(){try{const s=await api('session');if(s.role!=='employee')throw Error('Ce compte n’est pas un compte employé.');$('#login').hidden=true;$('#app').hidden=false;await load()}catch{}}
-$('#loginForm').onsubmit=async e=>{e.preventDefault();try{const s=await api('login',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});if(s.role!=='employee')throw Error('Compte employé requis.');await start()}catch(x){$('#error').textContent=x.message}};
-$('#refresh').onclick=()=>load().catch(e=>alert(e.message));$('#logout').onclick=async()=>{await api('logout',{method:'POST'});location.reload()};
-document.addEventListener('click',async e=>{const pz=e.target.closest('[data-pause]');if(pz){try{await api('store',{method:'POST',body:JSON.stringify({paused:pz.dataset.pause==='1'})});await load()}catch(x){alert(x.message)}return}const b=e.target.closest('[data-order]');if(!b)return;try{await api('orders/'+b.dataset.order,{method:'PATCH',body:JSON.stringify({status:b.dataset.status})});await load()}catch(x){alert(x.message)}});
-setInterval(()=>{if(!$('#app').hidden)load().catch(()=>{})},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.title='Espace équipe | Sparta Chicken'});
-start();
-</script></body></html>
+<!doctype html>
+<html lang="fr-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090706">
+  <meta name="description" content="By Sparta Chicken Sherbrooke : découvrez le menu, les commandes en ligne et les informations du restaurant.">
+  <link rel="canonical" href="/">
+  <title>By Sparta Chicken Sherbrooke — Le feu, le goût, la légende</title>
+  <link rel="preload" as="video" href="sparta-hero.mp4" type="video/mp4">
+  <link rel="stylesheet" href="accueil.css">
+</head>
+<body>
+<div class="ember ember-one"></div><div class="ember ember-two"></div>
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="By Sparta Chicken, accueil"><img class="official-logo" src="sparta-chicken-logo.jpg" alt="Logo officiel By Sparta Chicken Sherbrooke" width="420" height="336"></a>
+  <button class="menu-toggle" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
+  <nav class="nav" aria-label="Navigation principale">
+    <a class="active" href="index.html" aria-current="page">Accueil</a>
+    <a href="menu.html">Menu & commandes</a>
+    <a href="reservation.html">Réservation</a>
+    <a href="fidelite.html">Fidélité</a>
+    <a href="avis.html">Avis</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <a class="order-pill" href="menu.html#online-checkout">Commander <span>↗</span></a>
+</header>
+<main>
+<section class="hero" aria-label="Accueil Sparta Chicken">
+  <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="sparta-hero-cinema.png"><source src="sparta-hero.mp4" type="video/mp4"></video>
+  <div class="hero-shade"></div><div class="hero-grain"></div>
+  <div class="hero-copy reveal">
+    <p class="eyebrow"><span></span> SHERBROOKE · BY SPARTA CHICKEN</p>
+    <h1>Le feu.<br><em>Le goût.</em><br>La légende.</h1>
+    <p class="hero-desc">Du poulet, des burgers et des grillades : découvre l’univers Sparta Chicken et choisis ce qui te fait envie.</p>
+    <div class="hero-actions"><a class="btn btn-red" href="menu.html#online-checkout">Commander en ligne <b>↗</b></a><a class="btn btn-ghost" href="menu.html">Explorer le menu <b>↓</b></a></div>
+    <div class="hero-footnote"><span class="gold-dot"></span> Le goût rassemble · Sherbrooke</div>
+  </div>
+  <div class="hero-stamp"><span class="stamp-ring">SPARTA<br><b>GRILL</b></span><small>LA FLAMME<br>DU GOÛT</small></div>
+  <div class="halal-seal" aria-label="Sparta Chicken — Halal 100 pour cent"><img src="halal-sparta-badge.svg" alt="Sparta Chicken — Halal 100 %"></div>
+  <div class="hero-bottom"><span>01 / 01</span><span class="hero-line"></span><span>UNE EXPÉRIENCE QUI A DU FEU</span><a class="scroll-cue" href="#categories">DÉFILER ↓</a></div>
+</section>
+<section class="category-section" id="categories">
+  <div class="section-head reveal"><div><p class="eyebrow"><span></span> À DÉCOUVRIR</p><h2>Nos envies.<br><em>Votre festin.</em></h2></div><a href="menu.html" class="text-link">Voir le menu complet <span>↗</span></a></div>
+  <div class="category-grid">
+    <a class="food-card card-large reveal" href="menu.html"><img src="chicken.jpg" alt="Poulet grillé Sparta" loading="lazy"><span class="card-number">01</span><span class="card-caption"><small>LA SIGNATURE</small><strong>Poulet</strong><i>Voir le menu ↗</i></span></a>
+    <a class="food-card reveal" href="menu.html"><img src="grill.jpg" alt="Grillades" loading="lazy"><span class="card-number">02</span><span class="card-caption"><small>CUIT À LA FLAMME</small><strong>Grillades</strong><i>Voir le menu ↗</i></span></a>
+    <a class="food-card reveal" href="menu.html"><img src="burger.jpg" alt="Burger" loading="lazy"><span class="card-number">03</span><span class="card-caption"><small>GÉNÉREUX</small><strong>Burgers</strong><i>Voir le menu ↗</i></span></a>
+    <a class="food-card reveal" href="menu.html"><img src="salad.jpg" alt="Salade fraîche" loading="lazy"><span class="card-number">04</span><span class="card-caption"><small>FRAÎCHEUR</small><strong>Salades</strong><i>Voir le menu ↗</i></span></a>
+    <a class="food-card reveal" href="menu.html"><img src="sandwich.jpg" alt="Sandwich" loading="lazy"><span class="card-number">05</span><span class="card-caption"><small>À EMPORTER</small><strong>Sandwichs</strong><i>Voir le menu ↗</i></span></a>
+  </div>
+  <p class="menu-note">Les produits, disponibilités et prix affichés dans le menu sont ceux publiés par le restaurant. Vérifie ton panier avant de transmettre ta commande.</p>
+</section>
+<section class="manifesto" id="histoire"><div class="manifesto-image reveal"><img src="grill.jpg" alt="Cuisson au grill" loading="lazy"><div class="image-label">L’ESPRIT SPARTA</div></div><div class="manifesto-copy reveal"><p class="eyebrow"><span></span> NOTRE UNIVERS</p><h2>La passion<br>se goûte.<br><em>La flamme se partage.</em></h2><p>Des plats généreux, des saveurs franches et une expérience simple pour découvrir le menu et commander.</p><a class="btn btn-ghost" href="menu.html">Découvrir le menu <b>↗</b></a></div></section>
+<section class="promise" id="promesses"><div class="promise-item reveal"><span>✦</span><div><b>Un menu à découvrir</b><small>Consulte les produits disponibles</small></div></div><div class="promise-item reveal"><span>♨</span><div><b>Commande en ligne</b><small>Ramassage ou demande de livraison</small></div></div><div class="promise-item reveal"><span>⌁</span><div><b>Une équipe à votre écoute</b><small>Retrouve nos informations de contact</small></div></div></section>
+<section class="final-cta reveal"><p class="eyebrow"><span></span> PRÊT À PASSER À TABLE ?</p><h2>La prochaine bouchée<br><em>vous attend.</em></h2><a class="btn btn-red" href="menu.html#online-checkout">Voir le menu et commander <b>↗</b></a></section>
+</main>
+<footer><a class="brand" href="index.html"><img class="official-logo" src="sparta-chicken-logo.jpg" alt="Logo officiel By Sparta Chicken Sherbrooke" width="420" height="336"></a><nav aria-label="Liens de pied de page"><a href="menu.html">Menu</a><a href="reservation.html">Réservation</a><a href="fidelite.html">Fidélité</a><a href="contact.html">Contact</a></nav><span>© <span id="year"></span> By Sparta Chicken Sherbrooke</span></footer>
+<script src="accueil.js"></script>
+</body></html>
